@@ -94,8 +94,8 @@ class FloatingLabelInput extends Component<Props> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      isFocused: false,
-      secureText: props.value !== '' ? true : false,
+      isFocused: props.value !== '' ? true : false,
+      secureText: true,
     };
   }
 
@@ -153,10 +153,6 @@ class FloatingLabelInput extends Component<Props> {
       : this.state.secureText
       ? makeVisibleWhite
       : makeInvisibleWhite;
-
-    if (this.props.value !== '') {
-      this.setState({isFocused: true});
-    }
 
     const labelStyles = {
       leftFocused: 15,

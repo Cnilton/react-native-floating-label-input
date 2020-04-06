@@ -94,12 +94,19 @@ class FloatingLabelInput extends Component<Props> {
     secureText: true,
   };
 
-  // const inputRef = useRef(null);
-
   componentDidMount() {
     if (this.props.onRef != null) {
       this.props.onRef(this);
     }
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (props.value !== null) {
+      if (props.value !== '') {
+        state.isFocused = true;
+      }
+    }
+    return null;
   }
 
   handleFocus = () => {

@@ -84,20 +84,15 @@ interface State {
   isFocused: Boolean;
   secureText: Boolean;
 }
+
 class FloatingLabelInput extends Component<Props> {
-  state!: State;
   props!: Props;
   textInput!: TextInput;
 
-  // setState!: Function;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      isFocused: props.value !== '' ? true : false,
-      secureText: true,
-    };
-  }
+  state = {
+    isFocused: this.props.value !== '' ? true : false,
+    secureText: true,
+  };
 
   // const inputRef = useRef(null);
 

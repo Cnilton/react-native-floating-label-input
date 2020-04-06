@@ -154,9 +154,9 @@ class FloatingLabelInput extends Component<Props> {
       ? makeVisibleWhite
       : makeInvisibleWhite;
 
-    // if (value != '') {
-    //   setIsFocused(true);
-    // }
+    if (this.props.value !== '') {
+      this.setState({isFocused: true});
+    }
 
     const labelStyles = {
       leftFocused: 15,

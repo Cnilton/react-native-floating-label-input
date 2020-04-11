@@ -21,27 +21,22 @@ const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
-interface LabelStyles {
-  colorBlurred: string | undefined;
-  colorFocused: string | undefined;
-  leftBlurred: Number | undefined;
-  leftFocused: Number | undefined;
-  topBlurred: Number | undefined;
-  topFocused: Number | undefined;
-  fontSizeBlurred: Number | undefined;
-  fontSizeFocused: Number | undefined;
-}
-
-interface Styles extends StyleSheet {}
-
 interface Props {
+  /**Value of the input */
   value: string;
+  /**Style to the container of whole component*/
   containerStyles?: Object;
+  /**Changes the color for hide/show password image*/
   darkTheme?: true | false | undefined;
+  /**Value for the label, same as placeholder */
   label: string;
-  labelStyles?: LabelStyles;
+  /**Style to the label */
+  labelStyles?: Object;
+  /**Needed for 'next', 'done' etc. actions on keyboard */
   onRef: Function;
+  /**Set this to true if is password to have a show/hide input and secureTextEntry automatically*/
   isPassword?: true | false | undefined;
+  /**Sets default autocapitalize to input text, default words*/
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters' | undefined;
   autoFocus?: true | false | undefined;
   keyboardType:
@@ -59,8 +54,11 @@ interface Props {
     | 'twitter'
     | 'web-search'
     | undefined;
+  /**Callback for change on the input value */
   onChange: Function;
+  /**Callback for action submit on the keyboard */
   onSubmit: Function;
+  /**Text for action in the keyboard */
   returnKeyType?:
     | 'default'
     | 'go'
@@ -74,10 +72,25 @@ interface Props {
     | 'done'
     | 'emergency-call'
     | undefined;
-  showPasswordContainerStyles?: Styles;
-  showPasswordImageStyles?: Styles;
-  inputStyles?: Styles;
+  /**Style to the show/hide password container */
+  showPasswordContainerStyles?: Object;
+  /**Style to the show/hide password image */
+  showPasswordImageStyles?: Object;
+  /**Style to the input */
+  inputStyles?: Object;
+  /**Path to your custom image for show/hide input */
   customShowPasswordImage?: string;
+  /**Custom Style for position, size and color for label, when it's focused or blurred*/
+  customLabelStyles?: {
+    leftFocused: 15;
+    leftBlurred: 30;
+    topFocused: 0;
+    topBlurred: 10;
+    fontSizeFocused: 10;
+    fontSizeBlurred: 14;
+    colorFocused: '#49658c';
+    colorBlurred: '#49658c';
+  };
 }
 
 interface State {
@@ -156,42 +169,43 @@ class FloatingLabelInput extends Component<Props> {
       ? makeVisibleWhite
       : makeInvisibleWhite;
 
-    const labelStyles = {
+    const customLabelStyles = {
       leftFocused: 15,
       leftBlurred: 30,
       topFocused: 0,
+      topBlurred: 12.5,
       fontSizeFocused: 10,
       fontSizeBlurred: 14,
       colorFocused: '#49658c',
       colorBlurred: '#49658c',
-      ...this.props.labelStyles,
+      ...this.props.customLabelStyles,
     };
 
-    const style: Styles = {
+    const style: Object = {
       zIndex: 3,
       position: 'absolute',
       left: !this.state.isFocused
-        ? labelStyles.leftBlurred
-        : labelStyles.leftFocused,
+        ? customLabelStyles.leftBlurred
+        : customLabelStyles.leftFocused,
       top: !this.state.isFocused
-        ? labelStyles.topBlurred
-        : labelStyles.topFocused,
+        ? customLabelStyles.topBlurred
+        : customLabelStyles.topFocused,
       fontSize: !this.state.isFocused
-        ? labelStyles.fontSizeBlurred
-        : labelStyles.fontSizeFocused,
+        ? customLabelStyles.fontSizeBlurred
+        : customLabelStyles.fontSizeFocused,
       color: !this.state.isFocused
-        ? labelStyles.colorBlurred
-        : labelStyles.colorFocused,
-      ...style,
+        ? customLabelStyles.colorBlurred
+        : customLabelStyles.colorFocused,
+      ...this.props.labelStyles,
     };
 
-    const input = {
-      color: labelStyles.colorFocused,
+    const input: Object = {
+      color: customLabelStyles.colorFocused,
       ...styles.input,
       ...this.props.inputStyles,
     };
 
-    const containerStyles = {
+    const containerStyles: Object = {
       height: 50,
       color: '#49658c',
       borderColor: '#49658c',

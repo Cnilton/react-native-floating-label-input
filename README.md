@@ -59,6 +59,7 @@ export default class YourComponent extends Component {
     return (
       <View>
         <FloatingLabelInput
+          //  customLabelStyles={{}} // custom Style for position, size and color for label, when it's focused or blurred
           //  autoFocus={false} // auto focus when component mounted, default false
           //  autoCapitalize={} // set input text
           //  keyboardType={} // defines what type of keyboard is shown

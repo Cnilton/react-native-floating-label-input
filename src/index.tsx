@@ -80,7 +80,10 @@ interface Props {
   inputStyles?: Object;
   /**Path to your custom image for show/hide input */
   customShowPasswordImage?: string;
+  /**Set the input to create a new line with the return button */
+  multiline: boolean;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
+
   customLabelStyles?: {
     leftFocused: 15;
     leftBlurred: 30;
@@ -241,6 +244,9 @@ class FloatingLabelInput extends Component<Props> {
         </Text>
         <View style={styles.containerInput}>
           <TextInput
+            multiline={
+              this.props.multiline !== undefined ? this.props.multiline : false
+            }
             returnKeyType={
               this.props.returnKeyType !== undefined
                 ? this.props.returnKeyType

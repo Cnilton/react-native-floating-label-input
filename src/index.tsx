@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { useState, useRef, useEffect, RefObject } from 'react';
 import {
   View,
   Text,
@@ -7,23 +7,21 @@ import {
   LayoutAnimation,
   TouchableOpacity,
   NativeModules,
-  StyleSheet,
+  TextInputProps,
 } from 'react-native';
-import {styles} from './styles';
+import { styles } from './styles';
 
 import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
 
-const {UIManager} = NativeModules;
+const { UIManager } = NativeModules;
 
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
-interface Props {
-  /**Value of the input */
-  value: string;
+interface Props extends TextInputProps {
   /**Style to the container of whole component*/
   containerStyles?: Object;
   /**Changes the color for hide/show password image*/
@@ -32,46 +30,10 @@ interface Props {
   label: string;
   /**Style to the label */
   labelStyles?: Object;
-  /**Needed for 'next', 'done' etc. actions on keyboard */
-  onRef: Function;
   /**Set this to true if is password to have a show/hide input and secureTextEntry automatically*/
   isPassword?: true | false | undefined;
-  /**Sets default autocapitalize to input text, default words*/
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters' | undefined;
-  autoFocus?: true | false | undefined;
-  keyboardType:
-    | 'default'
-    | 'email-address'
-    | 'numeric'
-    | 'phone-pad'
-    | 'number-pad'
-    | 'decimal-pad'
-    | 'visible-password'
-    | 'ascii-capable'
-    | 'numbers-and-punctuation'
-    | 'url'
-    | 'name-phone-pad'
-    | 'twitter'
-    | 'web-search'
-    | undefined;
-  /**Callback for change on the input value */
-  onChange: Function;
   /**Callback for action submit on the keyboard */
-  onSubmit: Function;
-  /**Text for action in the keyboard */
-  returnKeyType?:
-    | 'default'
-    | 'go'
-    | 'google'
-    | 'join'
-    | 'next'
-    | 'route'
-    | 'search'
-    | 'send'
-    | 'yahoo'
-    | 'done'
-    | 'emergency-call'
-    | undefined;
+  onSubmit?: Function;
   /**Style to the show/hide password container */
   showPasswordContainerStyles?: Object;
   /**Style to the show/hide password image */
@@ -80,10 +42,7 @@ interface Props {
   inputStyles?: Object;
   /**Path to your custom image for show/hide input */
   customShowPasswordImage?: string;
-  /**Set the input to create a new line with the return button */
-  multiline: boolean;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
-
   customLabelStyles?: {
     leftFocused: 15;
     leftBlurred: 30;
@@ -94,81 +53,64 @@ interface Props {
     colorFocused: '#49658c';
     colorBlurred: '#49658c';
   };
+  /**Required if onFocus or onBlur is overrided*/
+  isFocused: boolean;
+  /**Ref to FloatingLabelInput*/
+  ref?: RefObject<TextInput>;
 }
 
-interface State {
-  isFocused: Boolean;
-  secureText: Boolean;
+interface T {
+  ref?: RefObject<TextInput>;
 }
 
-class FloatingLabelInput extends Component<Props> {
-  props!: Props;
-  textInput!: TextInput;
+const FloatingLabelInput: React.FC<Props> = React.forwardRef<TextInput, Props>(
+  (props, ref) => {
+    const [isFocused, setIsFocused] = useState(
+      props.value !== '' ? true : false,
+    );
+    const [secureText, setSecureText] = useState(true);
+    const inputRef = useRef<TextInput>(null);
 
-  state = {
-    isFocused: this.props.value !== '' ? true : false,
-    secureText: true,
-  };
+    useEffect(() => {
+      LayoutAnimation.spring();
+      setIsFocused(props.isFocused);
+    }, [props.isFocused]);
 
-  componentDidMount() {
-    if (this.props.onRef != null) {
-      this.props.onRef(this);
+    function handleFocus() {
+      LayoutAnimation.spring();
+      setIsFocused(true);
     }
-  }
 
-  static getDerivedStateFromProps(props: Props, state: State) {
-    if (props.value !== null) {
-      if (props.value !== '') {
-        state.isFocused = true;
+    function handleBlur() {
+      if (props.value === '' || props.value == null) {
+        LayoutAnimation.spring();
+        setIsFocused(false);
       }
     }
-    return null;
-  }
 
-  handleFocus = () => {
-    LayoutAnimation.spring();
-    this.setState({isFocused: true});
-  };
-
-  handleBlur = () => {
-    if (this.props.value === '' || this.props.value == null) {
-      LayoutAnimation.spring();
-      this.setState({isFocused: false});
+    function setFocus() {
+      inputRef.current?.focus();
     }
-  };
 
-  setFocus = () => {
-    this.textInput.focus();
-  };
-
-  _onChange = (value: string) => {
-    this.props.onChange(value);
-  };
-
-  _toggleVisibility = () => {
-    if (this.state.secureText) {
-      this.setState({secureText: false});
-    } else {
-      this.setState({secureText: true});
+    function _toggleVisibility() {
+      if (secureText) {
+        setSecureText(false);
+      } else {
+        setSecureText(true);
+      }
     }
-  };
 
-  onSubmitEditing = () => {
-    if (this.props.onSubmit !== undefined) {
-      this.props.onSubmit();
+    function onSubmitEditing() {
+      if (props.onSubmit !== undefined) {
+        props.onSubmit();
+      }
     }
-  };
 
-  focus() {
-    this.textInput.focus();
-  }
-
-  render() {
-    let imgSource = this.props.darkTheme
-      ? this.state.secureText
+    let imgSource = props.darkTheme
+      ? secureText
         ? makeVisibleBlack
         : makeInvisibleBlack
-      : this.state.secureText
+      : secureText
       ? makeVisibleWhite
       : makeInvisibleWhite;
 
@@ -181,31 +123,31 @@ class FloatingLabelInput extends Component<Props> {
       fontSizeBlurred: 14,
       colorFocused: '#49658c',
       colorBlurred: '#49658c',
-      ...this.props.customLabelStyles,
+      ...props.customLabelStyles,
     };
 
     const style: Object = {
       zIndex: 3,
       position: 'absolute',
-      left: !this.state.isFocused
+      left: !isFocused
         ? customLabelStyles.leftBlurred
         : customLabelStyles.leftFocused,
-      top: !this.state.isFocused
+      top: !isFocused
         ? customLabelStyles.topBlurred
         : customLabelStyles.topFocused,
-      fontSize: !this.state.isFocused
+      fontSize: !isFocused
         ? customLabelStyles.fontSizeBlurred
         : customLabelStyles.fontSizeFocused,
-      color: !this.state.isFocused
+      color: !isFocused
         ? customLabelStyles.colorBlurred
         : customLabelStyles.colorFocused,
-      ...this.props.labelStyles,
+      ...props.labelStyles,
     };
 
     const input: Object = {
       color: customLabelStyles.colorFocused,
       ...styles.input,
-      ...this.props.inputStyles,
+      ...props.inputStyles,
     };
 
     const containerStyles: Object = {
@@ -219,73 +161,45 @@ class FloatingLabelInput extends Component<Props> {
       paddingBottom: 10,
       alignContent: 'center',
       justifyContent: 'center',
-      ...this.props.containerStyles,
+      ...props.containerStyles,
     };
-
-    let defaultCapitalize =
-      this.props.isPassword !== undefined && this.props.isPassword
-        ? 'none'
-        : this.props.autoCapitalize;
 
     const toggleButton = {
       ...styles.toggleButton,
-      ...this.props.showPasswordContainerStyles,
+      ...props.showPasswordContainerStyles,
     };
 
     const img = {
       ...styles.img,
-      ...this.props.showPasswordImageStyles,
+      ...props.showPasswordImageStyles,
     };
 
     return (
       <View style={containerStyles}>
-        <Text onPress={() => this.setFocus()} style={style}>
-          {this.props.label}
+        <Text onPress={setFocus} style={style}>
+          {props.label}
         </Text>
         <View style={styles.containerInput}>
           <TextInput
-            multiline={
-              this.props.multiline !== undefined ? this.props.multiline : false
-            }
-            returnKeyType={
-              this.props.returnKeyType !== undefined
-                ? this.props.returnKeyType
-                : 'done'
-            }
-            ref={(input) => (this.textInput = input)}
-            onSubmitEditing={() => this.onSubmitEditing()}
+            onSubmitEditing={onSubmitEditing}
             secureTextEntry={
-              this.props.isPassword !== undefined
-                ? this.props.isPassword && this.state.secureText
+              props.isPassword !== undefined
+                ? props.isPassword && secureText
                 : false
             }
-            autoFocus={
-              this.props.autoFocus != null ? this.props.autoFocus : false
-            }
-            autoCapitalize={
-              defaultCapitalize != null ? defaultCapitalize : 'words'
-            }
-            keyboardType={
-              this.props.keyboardType !== undefined
-                ? this.props.keyboardType
-                : 'default'
-            }
             style={input}
-            value={this.props.value}
-            onChangeText={(value: string) => {
-              this._onChange(value);
-            }}
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            ref={ref}
+            {...props}
+            placeholder=""
           />
-          {this.props.isPassword ? (
-            <TouchableOpacity
-              style={toggleButton}
-              onPress={this._toggleVisibility}>
+          {props.isPassword ? (
+            <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
               <Image
                 source={
-                  this.props.customShowPasswordImage !== undefined
-                    ? this.props.customShowPasswordImage
+                  props.customShowPasswordImage !== undefined
+                    ? props.customShowPasswordImage
                     : imgSource
                 }
                 resizeMode="contain"
@@ -298,7 +212,7 @@ class FloatingLabelInput extends Component<Props> {
         </View>
       </View>
     );
-  }
-}
+  },
+);
 
 export default FloatingLabelInput;

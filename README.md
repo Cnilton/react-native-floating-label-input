@@ -23,73 +23,87 @@ yarn add react-native-floating-label-input
 
 ```javascript
 //...
+import React, { useState } from 'react';
 import FloatingLabelInput from 'react-native-floating-label-input';
 
-export default class YourComponent extends Component {
-  state = {
-    yourValue: '',
-  };
+const app: React.FC = () => {
+  const [login, setLogin]= useState('');
 
   render() {
     return (
       <FloatingLabelInput
-        label="Placeholder" // required
-        value={this.state.yourValue} // required
-        onChange={(value) => this.setState({yourValue: value})} // required
+        label="Login"
+        value={login}
+        onChangeText={(value) => setLogin(value)}
       />
     );
   }
 }
+export default app;
 ```
 
 ## Advanced Usage
 
 ```javascript
 //...
-import {View} from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View } from 'react-native';
 import FloatingLabelInput from 'react-native-floating-label-input';
 
-export default class YourComponent extends Component {
-  state = {
-    yourValue: '',
-    yourValue2: '',
-  };
+const app: React.FC = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
 
-  render() {
-    return (
-      <View>
-        <FloatingLabelInput
-          //  multiline={false} // Set the input return key to create a new line, default false
-          //  customLabelStyles={{}} // custom Style for position, size and color for label, when it's focused or blurred
-          //  autoFocus={false} // auto focus when component mounted, default false
-          //  autoCapitalize={} // set input text
-          //  keyboardType={} // defines what type of keyboard is shown
-          //  customShowPasswordImage={} // pass the image source to set your custom image
-          //  labelStyles={{}} // add your styles to the floating label component
-          //  showPasswordImageStyles={{}} // add your styles to the 'show password image' component
-          //  containerStyles={{}} // add your styles to container of whole component
-          //  showPasswordContainerStyles={{}} // add your styles to the 'show password container' component
-          //  inputStyles={{}} // add your styles to inner TextInput component
-          //  isPassword={false} // set this to true if value is password, default false
-          //  darkTheme={false} // color of default 'show password image', default false
-          //  onRef={(ref) => (this._login = ref)} // adds ref to your custom component
-          //  onSubmit={() => this.yourFunction()} // adds callback to submit
-          //  returnKeyType="next" // changes keyboard retun key text
-          label="Placeholder" // required
-          value={this.state.yourValue} // required
-          onChange={(value) => this.setState({yourValue: value})} // required
-        />
-        <FloatingLabelInput
-          onRef={(ref) => (this._password = ref)}
-          isPassword={true}
-          label="Placeholder" // required
-          value={this.state.yourValue2} // required
-          onChange={(value) => this.setState({yourValue2: value})} // required
-        />
-      </View>
-    );
-  }
-}
+  return (
+    <View>
+      <FloatingLabelInput
+        //  isFocused={false} // If you override the onFocus/onBlur props, you must handle this prop
+        //  customLabelStyles={{}} // custom Style for position, size and color for label, when it's focused or blurred
+        //  customShowPasswordImage={} // pass the image source to set your custom image
+        //  labelStyles={{}} // add your styles to the floating label component
+        //  showPasswordImageStyles={{}} // add your styles to the 'show password image' component
+        //  containerStyles={{}} // add your styles to container of whole component
+        //  showPasswordContainerStyles={{}} // add your styles to the 'show password container' component
+        //  inputStyles={{}} // add your styles to inner TextInput component
+        //  isPassword={false} // set this to true if value is password, default false
+        //  darkTheme={false} // color of default 'show password image', default false
+        //  onSubmit={() => this.yourFunction()} // adds callback to submit
+        label="Placeholder" // required
+        value={value} // required
+        onChange={value => setValue(value)} // required
+      />
+      <FloatingLabelInput
+        label="place"
+        value={value}
+        isFocused={isFocused}
+        onSubmit={() => {
+          passwordRef.current?.focus();
+        }}
+        ref={usernameRef}
+        onChangeText={text => setValue(text)}
+        onFocus={() => {
+          setIsFocused(true);
+        }}
+        onBlur={() => {
+          value === '' && setIsFocused(false);
+        }}
+      />
+      <FloatingLabelInput
+        label="place"
+        value={password}
+        isPassword={true}
+        darkTheme={true}
+        ref={passwordRef}
+        onChangeText={text => setPassword(text)}
+      />
+    </View>
+  );
+};
+
+export default app;
 ```
 
 - All commented options above are optional.
@@ -98,7 +112,7 @@ export default class YourComponent extends Component {
 ```javascript
 import showPassword from '../assets/images/yourImage';
 // ...
-customShowPasswordImage = {showPassword};
+customShowPasswordImage = { showPassword };
 ```
 
 ## Contributing

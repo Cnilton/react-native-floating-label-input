@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, RefObject } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import {
   View,
   Text,
@@ -56,163 +62,167 @@ interface Props extends TextInputProps {
   /**Required if onFocus or onBlur is overrided*/
   isFocused: boolean;
   /**Ref to FloatingLabelInput*/
-  ref?: RefObject<TextInput>;
 }
 
-interface T {
-  ref?: RefObject<TextInput>;
+interface InputRef {
+  focus(): void;
 }
 
-const FloatingLabelInput: React.FC<Props> = React.forwardRef<TextInput, Props>(
-  (props, ref) => {
-    const [isFocused, setIsFocused] = useState(
-      props.value !== '' ? true : false,
-    );
-    const [secureText, setSecureText] = useState(true);
-    const inputRef = useRef<TextInput>(null);
+const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
+  props,
+  ref,
+) => {
+  const [isFocused, setIsFocused] = useState(props.value !== '' ? true : false);
+  const [secureText, setSecureText] = useState(true);
+  const inputRef = useRef<any>(null);
 
-    useEffect(() => {
+  useEffect(() => {
+    LayoutAnimation.spring();
+    setIsFocused(props.isFocused);
+  }, [props.isFocused]);
+
+  useImperativeHandle(ref, () => ({
+    focus() {
+      inputRef.current.focus();
+    },
+  }));
+
+  function handleFocus() {
+    LayoutAnimation.spring();
+    setIsFocused(true);
+  }
+
+  function handleBlur() {
+    if (props.value === '' || props.value == null) {
       LayoutAnimation.spring();
-      setIsFocused(props.isFocused);
-    }, [props.isFocused]);
-
-    function handleFocus() {
-      LayoutAnimation.spring();
-      setIsFocused(true);
+      setIsFocused(false);
     }
+  }
 
-    function handleBlur() {
-      if (props.value === '' || props.value == null) {
-        LayoutAnimation.spring();
-        setIsFocused(false);
-      }
+  function setFocus() {
+    inputRef.current?.focus();
+  }
+
+  function _toggleVisibility() {
+    if (secureText) {
+      setSecureText(false);
+    } else {
+      setSecureText(true);
     }
+  }
 
-    function setFocus() {
-      inputRef.current?.focus();
+  function onSubmitEditing() {
+    if (props.onSubmit !== undefined) {
+      props.onSubmit();
     }
+  }
 
-    function _toggleVisibility() {
-      if (secureText) {
-        setSecureText(false);
-      } else {
-        setSecureText(true);
-      }
-    }
+  let imgSource = props.darkTheme
+    ? secureText
+      ? makeVisibleBlack
+      : makeInvisibleBlack
+    : secureText
+    ? makeVisibleWhite
+    : makeInvisibleWhite;
 
-    function onSubmitEditing() {
-      if (props.onSubmit !== undefined) {
-        props.onSubmit();
-      }
-    }
+  const customLabelStyles = {
+    leftFocused: 15,
+    leftBlurred: 30,
+    topFocused: 0,
+    topBlurred: 12.5,
+    fontSizeFocused: 10,
+    fontSizeBlurred: 14,
+    colorFocused: '#49658c',
+    colorBlurred: '#49658c',
+    ...props.customLabelStyles,
+  };
 
-    let imgSource = props.darkTheme
-      ? secureText
-        ? makeVisibleBlack
-        : makeInvisibleBlack
-      : secureText
-      ? makeVisibleWhite
-      : makeInvisibleWhite;
+  const style: Object = {
+    zIndex: 3,
+    position: 'absolute',
+    left: !isFocused
+      ? customLabelStyles.leftBlurred
+      : customLabelStyles.leftFocused,
+    top: !isFocused
+      ? customLabelStyles.topBlurred
+      : customLabelStyles.topFocused,
+    fontSize: !isFocused
+      ? customLabelStyles.fontSizeBlurred
+      : customLabelStyles.fontSizeFocused,
+    color: !isFocused
+      ? customLabelStyles.colorBlurred
+      : customLabelStyles.colorFocused,
+    ...props.labelStyles,
+  };
 
-    const customLabelStyles = {
-      leftFocused: 15,
-      leftBlurred: 30,
-      topFocused: 0,
-      topBlurred: 12.5,
-      fontSizeFocused: 10,
-      fontSizeBlurred: 14,
-      colorFocused: '#49658c',
-      colorBlurred: '#49658c',
-      ...props.customLabelStyles,
-    };
+  const input: Object = {
+    color: customLabelStyles.colorFocused,
+    ...styles.input,
+    ...props.inputStyles,
+  };
 
-    const style: Object = {
-      zIndex: 3,
-      position: 'absolute',
-      left: !isFocused
-        ? customLabelStyles.leftBlurred
-        : customLabelStyles.leftFocused,
-      top: !isFocused
-        ? customLabelStyles.topBlurred
-        : customLabelStyles.topFocused,
-      fontSize: !isFocused
-        ? customLabelStyles.fontSizeBlurred
-        : customLabelStyles.fontSizeFocused,
-      color: !isFocused
-        ? customLabelStyles.colorBlurred
-        : customLabelStyles.colorFocused,
-      ...props.labelStyles,
-    };
+  const containerStyles: Object = {
+    height: 50,
+    color: '#49658c',
+    borderColor: '#49658c',
+    borderWidth: 2,
+    borderRadius: 30,
+    backgroundColor: '#00000000',
+    paddingTop: 10,
+    paddingBottom: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    ...props.containerStyles,
+  };
 
-    const input: Object = {
-      color: customLabelStyles.colorFocused,
-      ...styles.input,
-      ...props.inputStyles,
-    };
+  const toggleButton = {
+    ...styles.toggleButton,
+    ...props.showPasswordContainerStyles,
+  };
 
-    const containerStyles: Object = {
-      height: 50,
-      color: '#49658c',
-      borderColor: '#49658c',
-      borderWidth: 2,
-      borderRadius: 30,
-      backgroundColor: '#00000000',
-      paddingTop: 10,
-      paddingBottom: 10,
-      alignContent: 'center',
-      justifyContent: 'center',
-      ...props.containerStyles,
-    };
+  const img = {
+    ...styles.img,
+    ...props.showPasswordImageStyles,
+  };
 
-    const toggleButton = {
-      ...styles.toggleButton,
-      ...props.showPasswordContainerStyles,
-    };
-
-    const img = {
-      ...styles.img,
-      ...props.showPasswordImageStyles,
-    };
-
-    return (
-      <View style={containerStyles}>
-        <Text onPress={setFocus} style={style}>
-          {props.label}
-        </Text>
-        <View style={styles.containerInput}>
-          <TextInput
-            onSubmitEditing={onSubmitEditing}
-            secureTextEntry={
-              props.isPassword !== undefined
-                ? props.isPassword && secureText
-                : false
-            }
-            style={input}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            ref={ref}
-            {...props}
-            placeholder=""
-          />
-          {props.isPassword ? (
-            <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
-              <Image
-                source={
-                  props.customShowPasswordImage !== undefined
-                    ? props.customShowPasswordImage
-                    : imgSource
-                }
-                resizeMode="contain"
-                style={img}
-              />
-            </TouchableOpacity>
-          ) : (
-            <View />
-          )}
-        </View>
+  return (
+    <View style={containerStyles}>
+      <Text onPress={setFocus} style={style}>
+        {props.label}
+      </Text>
+      <View style={styles.containerInput}>
+        <TextInput
+          onSubmitEditing={onSubmitEditing}
+          secureTextEntry={
+            props.isPassword !== undefined
+              ? props.isPassword && secureText
+              : false
+          }
+          style={input}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          ref={inputRef}
+          {...props}
+          placeholder=""
+        />
+        {props.isPassword ? (
+          <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
+            <Image
+              source={
+                props.customShowPasswordImage !== undefined
+                  ? props.customShowPasswordImage
+                  : imgSource
+              }
+              resizeMode="contain"
+              style={img}
+            />
+          </TouchableOpacity>
+        ) : (
+          <View />
+        )}
       </View>
-    );
-  },
-);
+    </View>
+  );
+};
 
-export default FloatingLabelInput;
+export default forwardRef(FloatingLabelInput);

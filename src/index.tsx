@@ -50,14 +50,14 @@ interface Props extends TextInputProps {
   customShowPasswordImage?: string;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
   customLabelStyles?: {
-    leftFocused: 15;
-    leftBlurred: 30;
-    topFocused: 0;
-    topBlurred: 10;
-    fontSizeFocused: 10;
-    fontSizeBlurred: 14;
-    colorFocused: '#49658c';
-    colorBlurred: '#49658c';
+    leftFocused: number;
+    leftBlurred: number;
+    topFocused: number;
+    topBlurred: number;
+    fontSizeFocused: number;
+    fontSizeBlurred: number;
+    colorFocused: string;
+    colorBlurred: string;
   };
   /**Required if onFocus or onBlur is overrided*/
   isFocused: boolean;

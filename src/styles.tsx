@@ -1,23 +1,35 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  input: {
-    paddingVertical: 0,
-    paddingHorizontal: 30,
+  container: {
+    flexDirection: 'row',
     flex: 1,
-    zIndex: 1,
+    width: '50%',
+    color: '#49658c',
+    borderColor: '#49658c',
+    borderWidth: 2,
+    borderRadius: 12,
+    paddingHorizontal: 11,
+    backgroundColor: '#00000000',
+    paddingTop: 10,
+    paddingBottom: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
+  input: {
+    minHeight: 28,
+    color: '#000',
+    paddingVertical: 0,
+    flex: 1,
+    zIndex: 10,
   },
   img: {
-    width: 20,
-    height: 20,
+    height: 25,
+    width: 25,
     alignSelf: 'center',
   },
-  containerInput: {
-    flexDirection: 'row',
-  },
   toggleButton: {
-    marginRight: 15,
-    zIndex: 4,
+    zIndex: 11,
     alignSelf: 'center',
     justifyContent: 'flex-end',
   },

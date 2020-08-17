@@ -127,9 +127,9 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
 
   const customLabelStyles = {
     leftFocused: 15,
-    leftBlurred: 30,
+    leftBlurred: 15,
     topFocused: 0,
-    topBlurred: 12.5,
+    topBlurred: '50%',
     fontSizeFocused: 10,
     fontSizeBlurred: 14,
     colorFocused: '#49658c',
@@ -162,16 +162,7 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
   };
 
   const containerStyles: Object = {
-    height: 50,
-    color: '#49658c',
-    borderColor: '#49658c',
-    borderWidth: 2,
-    borderRadius: 30,
-    backgroundColor: '#00000000',
-    paddingTop: 10,
-    paddingBottom: 10,
-    alignContent: 'center',
-    justifyContent: 'center',
+    ...styles.container,
     ...props.containerStyles,
   };
 
@@ -190,37 +181,34 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
       <Text onPress={setFocus} style={style}>
         {props.label}
       </Text>
-      <View style={styles.containerInput}>
-        <TextInput
-          onSubmitEditing={onSubmitEditing}
-          secureTextEntry={
-            props.isPassword !== undefined
-              ? props.isPassword && secureText
-              : false
-          }
-          style={input}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          ref={inputRef}
-          {...props}
-          placeholder=""
-        />
-        {props.isPassword ? (
-          <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
-            <Image
-              source={
-                props.customShowPasswordImage !== undefined
-                  ? props.customShowPasswordImage
-                  : imgSource
-              }
-              resizeMode="contain"
-              style={img}
-            />
-          </TouchableOpacity>
-        ) : (
-          <View />
-        )}
-      </View>
+      <TextInput
+        onSubmitEditing={onSubmitEditing}
+        secureTextEntry={
+          props.isPassword !== undefined
+            ? props.isPassword && secureText
+            : false
+        }
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        ref={inputRef}
+        {...props}
+        style={input}
+      />
+      {props.isPassword ? (
+        <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
+          <Image
+            source={
+              props.customShowPasswordImage !== undefined
+                ? props.customShowPasswordImage
+                : imgSource
+            }
+            resizeMode="contain"
+            style={img}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View />
+      )}
     </View>
   );
 };

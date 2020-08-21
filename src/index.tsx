@@ -60,7 +60,7 @@ interface Props extends TextInputProps {
     colorBlurred: string;
   };
   /**Required if onFocus or onBlur is overrided*/
-  isFocused: boolean;
+  isFocused?: boolean;
   /**Ref to FloatingLabelInput*/
 }
 

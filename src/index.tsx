@@ -78,7 +78,9 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
 
   useEffect(() => {
     LayoutAnimation.spring();
-    setIsFocused(props.isFocused);
+    if (props.isFocused !== undefined) {
+      setIsFocused(props.isFocused);
+    }
   }, [props.isFocused]);
 
   useImperativeHandle(ref, () => ({
@@ -156,8 +158,8 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
   };
 
   const input: Object = {
-    color: customLabelStyles.colorFocused,
     ...styles.input,
+    color: customLabelStyles.colorFocused,
     ...props.inputStyles,
   };
 

@@ -5,6 +5,8 @@
 
 This is a React-Native TextInput component, containing a floating placeholder, visible even after filled in, that you can freely modify its styles.
 
+<img src ="https://i.imgur.com/Na1KLIE.gif" width="30%"/>
+
 ## Instalation
 
 To install just input the following command:

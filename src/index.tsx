@@ -66,6 +66,7 @@ interface Props extends TextInputProps {
 
 interface InputRef {
   focus(): void;
+  blur(): void;
 }
 
 const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
@@ -87,6 +88,9 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
     focus() {
       inputRef.current.focus();
     },
+    blur() {
+      inputRef.current.blur();
+    }
   }));
 
   function handleFocus() {

@@ -69,7 +69,7 @@ interface Props extends TextInputProps {
   /**Set mask type*/
   maskType?: 'currency' | 'phone' | 'date' | 'card';
   /**Set currency thousand dividers*/
-  currencyDivider: ',' | '.';
+  currencyDivider?: ',' | '.';
 }
 
 /**Set global styles for all your floating-label-inputs*/

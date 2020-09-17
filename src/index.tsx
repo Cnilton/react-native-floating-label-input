@@ -100,13 +100,18 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [isFocused, setIsFocused] = useState(props.value !== '' ? true : false);
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
-
   useEffect(() => {
     LayoutAnimation.spring();
-    if (props.isFocused !== undefined) {
+    if (props.isFocused === undefined) {
+      if (isFocused || props.value !== '') {
+        setIsFocused(true);
+      } else {
+        setIsFocused(false);
+      }
+    } else {
       setIsFocused(props.isFocused);
     }
-  }, [props.isFocused]);
+  }, [props.isFocused, isFocused, props.value]);
 
   useImperativeHandle(ref, () => ({
     focus() {
@@ -227,6 +232,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         onFocus={handleFocus}
         onBlur={handleBlur}
         ref={inputRef}
+        value={props.value}
         {...props}
         maxLength={props.mask !== undefined ? props.mask.length : undefined}
         onChangeText={(val: string) => {

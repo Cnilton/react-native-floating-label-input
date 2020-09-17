@@ -1,3 +1,3 @@
-import ExpandableListView from './src';
+import FloatingLabelInput, { setGlobalStyles } from './src';
 
-export default ExpandableListView;
+export default { FloatingLabelInput, setGlobalStyles };

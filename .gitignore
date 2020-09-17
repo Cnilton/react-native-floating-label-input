@@ -28,6 +28,8 @@ build/
 .gradle
 local.properties
 *.iml
+.aab
+.apk
 
 # Visual Studio Code
 #

@@ -14,6 +14,9 @@ import {
   TouchableOpacity,
   NativeModules,
   TextInputProps,
+  TextStyle,
+  ViewStyle,
+  ImageStyle,
 } from 'react-native';
 import { styles } from './styles';
 
@@ -29,13 +32,13 @@ UIManager.setLayoutAnimationEnabledExperimental &&
 
 interface Props extends TextInputProps {
   /**Style to the container of whole component*/
-  containerStyles?: Object;
+  containerStyles?: ViewStyle;
   /**Changes the color for hide/show password image*/
   darkTheme?: true | false | undefined;
   /**Value for the label, same as placeholder */
   label: string;
   /**Style to the label */
-  labelStyles?: Object;
+  labelStyles?: TextStyle;
   /**Set this to true if is password to have a show/hide input and secureTextEntry automatically*/
   isPassword?: true | false | undefined;
   /**Callback for action submit on the keyboard */
@@ -45,7 +48,7 @@ interface Props extends TextInputProps {
   /**Style to the show/hide password image */
   showPasswordImageStyles?: Object;
   /**Style to the input */
-  inputStyles?: Object;
+  inputStyles?: TextStyle;
   /**Path to your custom image for show/hide input */
   customShowPasswordImage?: string;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
@@ -61,15 +64,36 @@ interface Props extends TextInputProps {
   };
   /**Required if onFocus or onBlur is overrided*/
   isFocused?: boolean;
-  /**Ref to FloatingLabelInput*/
+  /**Set a mask to your input*/
+  mask?: string;
+  /**Set mask type*/
+  maskType?: 'currency' | 'phone' | 'date' | 'card';
+  /**Set currency thousand dividers*/
+  currencyDivider: ',' | '.';
 }
+
+/**Set global styles for all your floating-label-inputs*/
+const setGlobalStyles = {
+  /**Set global styles to all floating-label-inputs container*/
+  containerStyles: {} as ViewStyle,
+  /**Set global custom styles to all floating-label-inputs labels*/
+  customLabelStyles: {},
+  /**Set global styles to all floating-label-inputs input*/
+  inputStyles: {} as TextStyle,
+  /**Set global styles to all floating-label-inputs label*/
+  labelStyles: {} as TextStyle,
+  /**Set global styles to all floating-label-inputs show password container*/
+  showPasswordContainerStyles: {} as ViewStyle,
+  /**Set global styles to all floating-label-inputs show password image*/
+  showPasswordImageStyles: {} as ImageStyle,
+};
 
 interface InputRef {
   focus(): void;
   blur(): void;
 }
 
-const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
+const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   props,
   ref,
 ) => {
@@ -90,7 +114,7 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
     },
     blur() {
       inputRef.current.blur();
-    }
+    },
   }));
 
   function handleFocus() {
@@ -140,6 +164,7 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
     fontSizeBlurred: 14,
     colorFocused: '#49658c',
     colorBlurred: '#49658c',
+    ...setGlobalStyles.customLabelStyles,
     ...props.customLabelStyles,
   };
 
@@ -158,27 +183,32 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
     color: !isFocused
       ? customLabelStyles.colorBlurred
       : customLabelStyles.colorFocused,
+    ...setGlobalStyles.labelStyles,
     ...props.labelStyles,
   };
 
   const input: Object = {
     ...styles.input,
     color: customLabelStyles.colorFocused,
+    ...setGlobalStyles.inputStyles,
     ...props.inputStyles,
   };
 
   const containerStyles: Object = {
     ...styles.container,
+    ...setGlobalStyles.containerStyles,
     ...props.containerStyles,
   };
 
   const toggleButton = {
     ...styles.toggleButton,
+    ...setGlobalStyles.showPasswordContainerStyles,
     ...props.showPasswordContainerStyles,
   };
 
   const img = {
     ...styles.img,
+    ...setGlobalStyles.showPasswordImageStyles,
     ...props.showPasswordImageStyles,
   };
 
@@ -198,6 +228,70 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
         onBlur={handleBlur}
         ref={inputRef}
         {...props}
+        maxLength={props.mask !== undefined ? props.mask.length : undefined}
+        onChangeText={(val: string) => {
+          if (props.maskType !== undefined || props.mask !== undefined) {
+            if (props.maskType !== 'currency' && props.mask !== undefined) {
+              if (val.length <= props.mask.length) {
+                let newValue = '';
+
+                for (let i = 0; i < val.length; i++) {
+                  if (
+                    props.mask[i].match(/[^0-9A-Za-z]/) &&
+                    props.mask[i] !== val[i]
+                  ) {
+                    newValue += props.mask[i] + val[i];
+                  } else {
+                    newValue += val[i];
+                  }
+                }
+                props.onChangeText && props.onChangeText(newValue);
+              }
+            } else if (props.maskType === 'currency') {
+              let divider = '';
+              let decimal = '';
+              if (props.currencyDivider === ',') {
+                divider = ',';
+                decimal = '.';
+              } else {
+                divider = '.';
+                decimal = ',';
+              }
+              if (
+                props.value !== undefined &&
+                props.value.length < val.length
+              ) {
+                if (!val.includes(decimal)) {
+                  if (val.length > 3) {
+                    let arr: string[] = [];
+                    let unmasked = val.replace(/[,.]/g, '');
+                    for (let i = 0; i < unmasked.length; i += 3) {
+                      arr.push(
+                        unmasked
+                          .split('')
+                          .splice(unmasked.length - i, 3)
+                          .join(''),
+                      );
+                    }
+
+                    arr = arr.reverse();
+                    arr.pop();
+                    let initial = arr.join('');
+                    if (unmasked.includes(initial)) {
+                      unmasked = unmasked.replace(initial, '');
+                    }
+                    val = unmasked + divider + arr.join(divider);
+                  }
+                }
+              }
+              props.onChangeText && props.onChangeText(val);
+            } else {
+              props.onChangeText && props.onChangeText(val);
+            }
+          } else {
+            props.onChangeText && props.onChangeText(val);
+          }
+        }}
         style={input}
       />
       {props.isPassword ? (
@@ -218,5 +312,5 @@ const FloatingLabelInput: React.RefForwardingComponent<InputRef, Props> = (
     </View>
   );
 };
-
+export { setGlobalStyles };
 export default forwardRef(FloatingLabelInput);

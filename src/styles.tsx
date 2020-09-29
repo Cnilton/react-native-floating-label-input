@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
   countdown: {
     position: 'absolute',
     right: 11,
-    bottom: 11,
+    bottom: 0,
     color: '#49658c',
     fontSize: 10,
   },

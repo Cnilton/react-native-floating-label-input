@@ -45,6 +45,8 @@ interface Props extends TextInputProps {
   showPasswordContainerStyles?: Object;
   /**Style to the show/hide password image */
   showPasswordImageStyles?: Object;
+  /**Style to the countdown text */
+  showCountdownStyles?: Object;
   /**Style to the input */
   inputStyles?: TextStyle;
   /**Path to your custom image for show/hide input */
@@ -70,6 +72,12 @@ interface Props extends TextInputProps {
   currencyDivider: ',' | '.';
   /**Changes the input from single line input to multiline input*/
   isMultiline?: true | false | undefined;
+  /**Maxinum number of characters allowed. Overriden by mask if present */
+  maxLength?: number;
+  /**Shows the remaining number of characters allowed to be typed if maxLength or mask are present */
+  showCountdown?: true | false | undefined;
+  /**Label for the remaining number of characters allowed shown after the number */
+  countdownLabel?: string;
 }
 
 /**Set global styles for all your floating-label-inputs*/
@@ -315,7 +323,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             props.onSelectionChange(evt);
           }
         }}
-        maxLength={props.mask !== undefined ? props.mask.length : undefined}
+        maxLength={props.mask !== undefined ? props.mask.length : props.maxLength !== undefined ? props.maxLength : undefined}
         multiline={props.multiline}
         onChangeText={(val: string) => {
           if (props.maskType !== undefined || props.mask !== undefined) {
@@ -397,6 +405,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ) : (
         <View />
       )}
+      {props.showCountdown && props.maxLength &&
+        <Text style={countdownStyles}>{props.maxLength - (props.value ? props.value.length : 0)} {props.countdownLabel}</Text>
+      }
     </View>
   );
 };

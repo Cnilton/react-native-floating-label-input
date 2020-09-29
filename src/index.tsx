@@ -73,7 +73,7 @@ interface Props extends TextInputProps {
   /**Maxinum number of decimal places allowed for currency mask. */
   maxDecimalPlaces?: number;
   /**Changes the input from single line input to multiline input*/
-  isMultiline?: true | false | undefined;
+  multiline?: true | false | undefined;
   /**Maxinum number of characters allowed. Overriden by mask if present */
   maxLength?: number;
   /**Shows the remaining number of characters allowed to be typed if maxLength or mask are present */

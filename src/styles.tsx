@@ -33,4 +33,11 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'flex-end',
   },
+  countdown: {
+    position: 'absolute',
+    right: 11,
+    bottom: 11,
+    color: '#49658c',
+    fontSize: 10,
+  },
 });

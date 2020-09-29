@@ -7,16 +7,19 @@ import React, {
 } from 'react';
 import {
   View,
-  Text,
+  Animated,
+  Easing,
   TextInput,
   Image,
   LayoutAnimation,
   TouchableOpacity,
-  NativeModules,
+  LayoutChangeEvent,
   TextInputProps,
   TextStyle,
   ViewStyle,
   ImageStyle,
+  NativeSyntheticEvent,
+  TextInputSelectionChangeEventData,
 } from 'react-native';
 import { styles } from './styles';
 
@@ -24,11 +27,6 @@ import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
-
-const { UIManager } = NativeModules;
-
-UIManager.setLayoutAnimationEnabledExperimental &&
-  UIManager.setLayoutAnimationEnabledExperimental(true);
 
 interface Props extends TextInputProps {
   /**Style to the container of whole component*/
@@ -69,7 +67,7 @@ interface Props extends TextInputProps {
   /**Set mask type*/
   maskType?: 'currency' | 'phone' | 'date' | 'card';
   /**Set currency thousand dividers*/
-  currencyDivider?: ',' | '.';
+  currencyDivider: ',' | '.';
 }
 
 /**Set global styles for all your floating-label-inputs*/
@@ -97,21 +95,68 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   props,
   ref,
 ) => {
-  const [isFocused, setIsFocused] = useState(props.value !== '' ? true : false);
+  const [selection, setSelection] = useState(
+    {} as { start: number; end: number },
+  );
+  const [isFocused, setIsFocused] = useState(false);
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
+
+  const customLabelStyles = {
+    leftFocused: 5,
+    leftBlurred: 5,
+    topFocused: 0,
+    topBlurred: 14,
+    fontSizeFocused: 10,
+    fontSizeBlurred: 14,
+    colorFocused: '#49658c',
+    colorBlurred: '#49658c',
+    ...setGlobalStyles.customLabelStyles,
+    ...props.customLabelStyles,
+  };
+
+  const [leftAnimated] = useState(
+    new Animated.Value(customLabelStyles.leftBlurred),
+  );
+  const [topAnimated] = useState(
+    new Animated.Value(customLabelStyles.topBlurred),
+  );
+
   useEffect(() => {
-    LayoutAnimation.spring();
     if (props.isFocused === undefined) {
-      if (isFocused || props.value !== '') {
+      if (props.value !== '' || selection.end !== undefined) {
+        handleFocus();
         setIsFocused(true);
       } else {
+        handleBlur();
         setIsFocused(false);
       }
-    } else {
-      setIsFocused(props.isFocused);
     }
-  }, [props.isFocused, isFocused, props.value]);
+  }, [props.value]);
+
+  useEffect(() => {
+    if (props.isFocused !== undefined) {
+      setIsFocused(props.isFocused);
+      Animated.parallel([
+        Animated.timing(leftAnimated, {
+          useNativeDriver: true,
+          duration: 300,
+          easing: Easing.linear,
+          toValue: props.isFocused
+            ? customLabelStyles.leftFocused
+            : customLabelStyles.leftBlurred,
+        }),
+        Animated.timing(topAnimated, {
+          toValue: props.isFocused
+            ? customLabelStyles.topFocused
+            : customLabelStyles.topBlurred,
+          duration: 300,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [props.isFocused]);
 
   useImperativeHandle(ref, () => ({
     focus() {
@@ -123,15 +168,42 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }));
 
   function handleFocus() {
-    LayoutAnimation.spring();
+    Animated.parallel([
+      Animated.timing(leftAnimated, {
+        useNativeDriver: true,
+        duration: 300,
+        easing: Easing.linear,
+        toValue: customLabelStyles.leftFocused,
+      }),
+      Animated.timing(topAnimated, {
+        toValue: customLabelStyles.topFocused,
+        duration: 300,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    ]).start();
     setIsFocused(true);
   }
 
   function handleBlur() {
     if (props.value === '' || props.value == null) {
-      LayoutAnimation.spring();
+      Animated.parallel([
+        Animated.timing(leftAnimated, {
+          useNativeDriver: true,
+          duration: 300,
+          easing: Easing.linear,
+          toValue: customLabelStyles.leftBlurred,
+        }),
+        Animated.timing(topAnimated, {
+          toValue: customLabelStyles.topBlurred,
+          duration: 300,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ]).start();
       setIsFocused(false);
     }
+    setSelection({} as { start: number; end: number });
   }
 
   function setFocus() {
@@ -160,28 +232,17 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? makeVisibleWhite
     : makeInvisibleWhite;
 
-  const customLabelStyles = {
-    leftFocused: 15,
-    leftBlurred: 15,
-    topFocused: 0,
-    topBlurred: '50%',
-    fontSizeFocused: 10,
-    fontSizeBlurred: 14,
-    colorFocused: '#49658c',
-    colorBlurred: '#49658c',
-    ...setGlobalStyles.customLabelStyles,
-    ...props.customLabelStyles,
-  };
-
   const style: Object = {
     zIndex: 3,
     position: 'absolute',
-    left: !isFocused
-      ? customLabelStyles.leftBlurred
-      : customLabelStyles.leftFocused,
-    top: !isFocused
-      ? customLabelStyles.topBlurred
-      : customLabelStyles.topFocused,
+    left: 0,
+    paddingLeft: 10,
+    // left: !isFocused
+    //   ? customLabelStyles.leftBlurred
+    //   : customLabelStyles.leftFocused,
+    // top: !isFocused
+    //   ? customLabelStyles.topBlurred
+    //   : customLabelStyles.topFocused,
     fontSize: !isFocused
       ? customLabelStyles.fontSizeBlurred
       : customLabelStyles.fontSizeFocused,
@@ -219,9 +280,20 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   return (
     <View style={containerStyles}>
-      <Text onPress={setFocus} style={style}>
+      <Animated.Text
+        onPress={setFocus}
+        style={[
+          style,
+          {
+            transform: [
+              { translateX: leftAnimated },
+              { translateY: topAnimated },
+            ],
+          },
+        ]}
+      >
         {props.label}
-      </Text>
+      </Animated.Text>
       <TextInput
         onSubmitEditing={onSubmitEditing}
         secureTextEntry={
@@ -232,8 +304,15 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         onFocus={handleFocus}
         onBlur={handleBlur}
         ref={inputRef}
-        value={props.value}
         {...props}
+        onSelectionChange={(
+          evt: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
+        ) => {
+          setSelection(evt.nativeEvent.selection);
+          if (props.onSelectionChange !== undefined) {
+            props.onSelectionChange(evt);
+          }
+        }}
         maxLength={props.mask !== undefined ? props.mask.length : undefined}
         onChangeText={(val: string) => {
           if (props.maskType !== undefined || props.mask !== undefined) {

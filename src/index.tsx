@@ -68,6 +68,8 @@ interface Props extends TextInputProps {
   maskType?: 'currency' | 'phone' | 'date' | 'card';
   /**Set currency thousand dividers*/
   currencyDivider: ',' | '.';
+  /**Changes the input from single line input to multiline input*/
+  isMultiline?: true | false | undefined;
 }
 
 /**Set global styles for all your floating-label-inputs*/
@@ -314,6 +316,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           }
         }}
         maxLength={props.mask !== undefined ? props.mask.length : undefined}
+        multiline={props.multiline}
         onChangeText={(val: string) => {
           if (props.maskType !== undefined || props.mask !== undefined) {
             if (props.maskType !== 'currency' && props.mask !== undefined) {

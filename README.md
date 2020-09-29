@@ -161,7 +161,7 @@ const app: React.FC = () => {
         //  darkTheme={false} // color of default 'show password image', default false
         //  multiline={false} // set this to true to enable multiline support, default false
         //  maxLength={} // Set maximum number of characters input will accept. Value overridden by mask if present
-        //  showCountdown={false} // Set this to true to show the allowed number of characters remaining
+        //  showCountdown={false} // Set this to true to show the allowed number of characters remaining, default false
         //  countdownLabel="" // Set the label to be shown after the allowed number of characters remaining, default is ""
         //  onSubmit={() => this.yourFunction()} // adds callback to submit
         label="Placeholder" // required

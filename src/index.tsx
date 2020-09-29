@@ -71,7 +71,7 @@ interface Props extends TextInputProps {
   /**Set currency thousand dividers*/
   currencyDivider: ',' | '.';
   /**Changes the input from single line input to multiline input*/
-  isMultiline?: true | false | undefined;
+  multiline?: true | false | undefined;
   /**Maxinum number of characters allowed. Overriden by mask if present */
   maxLength?: number;
   /**Shows the remaining number of characters allowed to be typed if maxLength or mask are present */

@@ -70,6 +70,8 @@ interface Props extends TextInputProps {
   maskType?: 'currency' | 'phone' | 'date' | 'card';
   /**Set currency thousand dividers*/
   currencyDivider: ',' | '.';
+  /**Maxinum number of decimal places allowed for currency mask. */
+  maxDecimalPlaces?: number;
   /**Changes the input from single line input to multiline input*/
   multiline?: true | false | undefined;
   /**Maxinum number of characters allowed. Overriden by mask if present */
@@ -378,6 +380,16 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                     }
                     val = unmasked + divider + arr.join(divider);
                   }
+                } else {
+                  let maxDecimalPlaces = props.maxDecimalPlaces !== undefined ? props.maxDecimalPlaces : 2;
+                  if (val.split(decimal)[1].length > maxDecimalPlaces) {
+                    val = val.slice(0, val.length - 1);
+                  }
+                }
+
+                if (val.split(decimal).length > 2) {
+                  const idx = val.lastIndexOf(decimal);
+                  val = val.slice(0, idx) + val.slice(idx + 1);
                 }
               }
               props.onChangeText && props.onChangeText(val);

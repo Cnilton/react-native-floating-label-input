@@ -149,6 +149,7 @@ const app: React.FC = () => {
         //  mask="99/99/9999" // Set mask to your input
         //  maskType="date" // Set mask type
         //  currencyDivider="," // Set currency thousands divider, default is ","
+        //  maxDecimalPlaces={2} // Set maximum decimal places, default is 2
         //  isFocused={false} // If you override the onFocus/onBlur props, you must handle this prop
         //  customLabelStyles={{}} // custom Style for position, size and color for label, when it's focused or blurred
         //  customShowPasswordImage={} // pass the image source to set your custom image

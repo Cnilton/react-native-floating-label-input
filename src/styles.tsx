@@ -3,8 +3,6 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    // flex: 1,
-    // width: '50%',
     color: '#49658c',
     borderColor: '#49658c',
     borderWidth: 2,

@@ -23,7 +23,7 @@ yarn add react-native-floating-label-input
 
 ## New Features
 
-Features as setGlobalStyles, and mask have been added! Checkout the usage:
+Features as setGlobalStyles, mask and character count for multiline have been added! Checkout the usage:
 
 ### setGlobalStyles
 
@@ -63,45 +63,92 @@ Props relating mask:
 
 Currently the mask will take effect in all maskTypes, except 'currency', wich is made automatically when maskType is set as currency. The reason is because currency is dynamic within the input value. If you want to change the thousands divider to other pattern, just insert the prop currencyDivider with one of: ',' or '.'.
 
+<img src ="https://i.imgur.com/iKbez6d.gif" width="40%"/>
+
 ```javascript
 //...
 import React, { useState } from 'react';
-import {FloatingLabelInput} from 'react-native-floating-label-input';
+import { ScrollView } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
 
 const app: React.FC = () => {
-  const [birthday, setBirthday]= useState('');
-  const [phone, setPhone]= useState('');
-  const [price, setPrice]= useState('');
+  const [birthday, setBirthday] = useState('');
+  const [phone, setPhone] = useState('');
+  const [price, setPrice] = useState('');
 
-  render() {
-    return (
-      <>
+  return (
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        margin: 30,
+      }}
+    >
       <FloatingLabelInput
         label="Birthday"
         value={birthday}
-        mask='99/99/9999'
+        mask="99/99/9999"
         keyboardType="numeric"
-        onChangeText={(value) => setBirthday(value)}
+        onChangeText={value => setBirthday(value)}
       />
       <FloatingLabelInput
         label="Phone"
-        value={login}
-        mask='(99)98765-4321'
+        value={phone}
+        mask="(99)98765-4321"
         keyboardType="numeric"
-        onChangeText={(value) => setPhone(value)}
+        onChangeText={value => setPhone(value)}
       />
       <FloatingLabelInput
         label="Price"
         value={price}
         maskType="currency"
-        currencyDivider="."  // which generates: 9.999.999,99 or 0,99 ...
+        currencyDivider="." // which generates: 9.999.999,99 or 0,99 ...
         keyboardType="numeric"
-        onChangeText={(value) => setPrice(value)}
+        onChangeText={value => setPrice(value)}
       />
-      </>
-    );
-  }
-}
+    </ScrollView>
+  );
+};
+export default app;
+```
+
+### Character Count
+
+<img src ="https://i.imgur.com/wRsxHad.gif" width="40%"/>
+
+```javascript
+import React, { useState } from 'react';
+import { ScrollView } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
+
+const app: React.FC = () => {
+  const [description, setDescription] = useState('');
+
+  return (
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        margin: 30,
+      }}
+    >
+      <FloatingLabelInput
+        multiline={true}
+        label="Description"
+        value={val}
+        blurOnSubmit={false}
+        countdownLabel="chars left"
+        maxLength={100}
+        showCountdown={true}
+        onChangeText={value => setDescription(value)}
+      />
+    </ScrollView>
+  );
+};
 export default app;
 ```
 
@@ -110,21 +157,19 @@ export default app;
 ```javascript
 //...
 import React, { useState } from 'react';
-import {FloatingLabelInput} from 'react-native-floating-label-input';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
 
 const app: React.FC = () => {
-  const [login, setLogin]= useState('');
+  const [login, setLogin] = useState('');
 
-  render() {
-    return (
-      <FloatingLabelInput
-        label="Login"
-        value={login}
-        onChangeText={(value) => setLogin(value)}
-      />
-    );
-  }
-}
+  return (
+    <FloatingLabelInput
+      label="Login"
+      value={login}
+      onChangeText={value => setLogin(value)}
+    />
+  );
+};
 export default app;
 ```
 

@@ -11,9 +11,8 @@ import {
   Easing,
   TextInput,
   Image,
-  LayoutAnimation,
+  Text,
   TouchableOpacity,
-  LayoutChangeEvent,
   TextInputProps,
   TextStyle,
   ViewStyle,
@@ -42,11 +41,9 @@ interface Props extends TextInputProps {
   /**Callback for action submit on the keyboard */
   onSubmit?: Function;
   /**Style to the show/hide password container */
-  showPasswordContainerStyles?: Object;
+  showPasswordContainerStyles?: ViewStyle;
   /**Style to the show/hide password image */
-  showPasswordImageStyles?: Object;
-  /**Style to the countdown text */
-  showCountdownStyles?: Object;
+  showPasswordImageStyles?: ImageStyle;
   /**Style to the input */
   inputStyles?: TextStyle;
   /**Path to your custom image for show/hide input */
@@ -78,6 +75,8 @@ interface Props extends TextInputProps {
   maxLength?: number;
   /**Shows the remaining number of characters allowed to be typed if maxLength or mask are present */
   showCountdown?: true | false | undefined;
+  /**Style to the countdown text */
+  showCountdownStyles?: TextStyle;
   /**Label for the remaining number of characters allowed shown after the number */
   countdownLabel?: string;
 }
@@ -96,6 +95,8 @@ const setGlobalStyles = {
   showPasswordContainerStyles: {} as ViewStyle,
   /**Set global styles to all floating-label-inputs show password image*/
   showPasswordImageStyles: {} as ImageStyle,
+  /**Set global style to the countdown text */
+  showCountdownStyles: {} as TextStyle,
 };
 
 interface InputRef {
@@ -249,12 +250,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     position: 'absolute',
     left: 0,
     paddingLeft: 10,
-    // left: !isFocused
-    //   ? customLabelStyles.leftBlurred
-    //   : customLabelStyles.leftFocused,
-    // top: !isFocused
-    //   ? customLabelStyles.topBlurred
-    //   : customLabelStyles.topFocused,
     fontSize: !isFocused
       ? customLabelStyles.fontSizeBlurred
       : customLabelStyles.fontSizeFocused,
@@ -288,6 +283,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...styles.img,
     ...setGlobalStyles.showPasswordImageStyles,
     ...props.showPasswordImageStyles,
+  };
+
+  const countdown = {
+    ...styles.countdown,
+    ...setGlobalStyles.showCountdownStyles,
+    ...props.showCountdownStyles,
   };
 
   return (
@@ -325,7 +326,13 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             props.onSelectionChange(evt);
           }
         }}
-        maxLength={props.mask !== undefined ? props.mask.length : props.maxLength !== undefined ? props.maxLength : undefined}
+        maxLength={
+          props.mask !== undefined
+            ? props.mask.length
+            : props.maxLength !== undefined
+            ? props.maxLength
+            : undefined
+        }
         multiline={props.multiline}
         onChangeText={(val: string) => {
           if (props.maskType !== undefined || props.mask !== undefined) {
@@ -359,7 +366,51 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 props.value !== undefined &&
                 props.value.length < val.length
               ) {
-                if (!val.includes(decimal)) {
+                if (val.includes(decimal)) {
+                  let intVal = val.split(decimal)[0].replace(/[,.]/g, '');
+                  let decimalValue = val.split(decimal)[1];
+                  console.log(intVal);
+                  if (intVal.length > 3) {
+                    let arr: string[] = [];
+                    for (let i = 0; i < intVal.length; i += 3) {
+                      arr.push(
+                        intVal
+                          .split('')
+                          .splice(intVal.length - i, 3)
+                          .join(''),
+                      );
+                    }
+
+                    arr = arr.reverse();
+                    arr.pop();
+                    let initial = arr.join('');
+                    if (intVal.includes(initial)) {
+                      intVal = intVal.replace(initial, '');
+                    }
+                    intVal = intVal + divider + arr.join(divider);
+                  }
+
+                  val = intVal + decimal + decimalValue;
+
+                  let maxDecimalPlaces =
+                    props.maxDecimalPlaces !== undefined
+                      ? props.maxDecimalPlaces
+                      : 2;
+
+                  if (
+                    val.split(decimal)[1] !== undefined &&
+                    props.value.split(decimal)[1] !== undefined &&
+                    val.split(decimal)[1].length >
+                      props.value.split(decimal)[1].length &&
+                    props.value.split(decimal)[1].length === maxDecimalPlaces
+                  ) {
+                    return;
+                  } else {
+                    if (val.split(decimal)[1].length > maxDecimalPlaces) {
+                      val = val.slice(0, val.length - 1);
+                    }
+                  }
+                } else {
                   if (val.length > 3) {
                     let arr: string[] = [];
                     let unmasked = val.replace(/[,.]/g, '');
@@ -380,16 +431,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                     }
                     val = unmasked + divider + arr.join(divider);
                   }
-                } else {
-                  let maxDecimalPlaces = props.maxDecimalPlaces !== undefined ? props.maxDecimalPlaces : 2;
-                  if (val.split(decimal)[1].length > maxDecimalPlaces) {
-                    val = val.slice(0, val.length - 1);
-                  }
-                }
-
-                if (val.split(decimal).length > 2) {
-                  const idx = val.lastIndexOf(decimal);
-                  val = val.slice(0, idx) + val.slice(idx + 1);
                 }
               }
               props.onChangeText && props.onChangeText(val);
@@ -417,9 +458,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ) : (
         <View />
       )}
-      {props.showCountdown && props.maxLength &&
-        <Text style={countdownStyles}>{props.maxLength - (props.value ? props.value.length : 0)} {props.countdownLabel}</Text>
-      }
+      {props.showCountdown && props.maxLength && (
+        <Text style={countdown}>
+          {props.maxLength - (props.value ? props.value.length : 0)}{' '}
+          {props.countdownLabel}
+        </Text>
+      )}
     </View>
   );
 };

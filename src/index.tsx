@@ -369,7 +369,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 if (val.includes(decimal)) {
                   let intVal = val.split(decimal)[0].replace(/[,.]/g, '');
                   let decimalValue = val.split(decimal)[1];
-                  console.log(intVal);
                   if (intVal.length > 3) {
                     let arr: string[] = [];
                     for (let i = 0; i < intVal.length; i += 3) {

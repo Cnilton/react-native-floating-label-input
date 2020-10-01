@@ -116,7 +116,7 @@ export default app;
 
 ### Character Count
 
-<img src ="https://i.imgur.com/wRsxHad.gif" width="40%"/>
+<img src ="https://i.imgur.com/7lkamn4.gif" width="40%"/>
 
 ```javascript
 import React, { useState } from 'react';

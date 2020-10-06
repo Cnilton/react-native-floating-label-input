@@ -66,7 +66,7 @@ interface Props extends TextInputProps {
   /**Set mask type*/
   maskType?: 'currency' | 'phone' | 'date' | 'card';
   /**Set currency thousand dividers*/
-  currencyDivider: ',' | '.';
+  currencyDivider?: ',' | '.';
   /**Maxinum number of decimal places allowed for currency mask. */
   maxDecimalPlaces?: number;
   /**Changes the input from single line input to multiline input*/

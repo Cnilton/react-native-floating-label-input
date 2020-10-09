@@ -50,14 +50,14 @@ interface Props extends TextInputProps {
   customShowPasswordImage?: string;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
   customLabelStyles?: {
-    leftFocused: number;
-    leftBlurred: number;
-    topFocused: number;
-    topBlurred: number;
-    fontSizeFocused: number;
-    fontSizeBlurred: number;
-    colorFocused: string;
-    colorBlurred: string;
+    leftFocused?: number;
+    leftBlurred?: number;
+    topFocused?: number;
+    topBlurred?: number;
+    fontSizeFocused?: number;
+    fontSizeBlurred?: number;
+    colorFocused?: string;
+    colorBlurred?: string;
   };
   /**Required if onFocus or onBlur is overrided*/
   isFocused?: boolean;
@@ -81,12 +81,23 @@ interface Props extends TextInputProps {
   countdownLabel?: string;
 }
 
+interface CustomLabelProps {
+  leftFocused?: number;
+  leftBlurred?: number;
+  topFocused?: number;
+  topBlurred?: number;
+  fontSizeFocused?: number;
+  fontSizeBlurred?: number;
+  colorFocused?: string;
+  colorBlurred?: string;
+}
+
 /**Set global styles for all your floating-label-inputs*/
 const setGlobalStyles = {
   /**Set global styles to all floating-label-inputs container*/
   containerStyles: {} as ViewStyle,
   /**Set global custom styles to all floating-label-inputs labels*/
-  customLabelStyles: {},
+  customLabelStyles: {} as CustomLabelProps,
   /**Set global styles to all floating-label-inputs input*/
   inputStyles: {} as TextStyle,
   /**Set global styles to all floating-label-inputs label*/
@@ -115,11 +126,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
-  const customLabelStyles = {
-    leftFocused: 5,
-    leftBlurred: 5,
-    topFocused: 0,
-    topBlurred: 14,
+  const customLabelStyles: CustomLabelProps = {
     fontSizeFocused: 10,
     fontSizeBlurred: 14,
     colorFocused: '#49658c',
@@ -129,10 +136,17 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   };
 
   const [leftAnimated] = useState(
-    new Animated.Value(customLabelStyles.leftBlurred),
+    new Animated.Value(
+      customLabelStyles != undefined &&
+      customLabelStyles.leftBlurred !== undefined
+        ? customLabelStyles.leftBlurred
+        : 0,
+    ),
   );
   const [topAnimated] = useState(
-    new Animated.Value(customLabelStyles.topBlurred),
+    new Animated.Value(
+      customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 14,
+    ),
   );
 
   useEffect(() => {
@@ -157,12 +171,20 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: Easing.linear,
           toValue: props.isFocused
             ? customLabelStyles.leftFocused
-            : customLabelStyles.leftBlurred,
+              ? customLabelStyles.leftFocused
+              : 0
+            : customLabelStyles.leftBlurred
+            ? customLabelStyles.leftBlurred
+            : 0,
         }),
         Animated.timing(topAnimated, {
           toValue: props.isFocused
             ? customLabelStyles.topFocused
-            : customLabelStyles.topBlurred,
+              ? customLabelStyles.topFocused
+              : 0
+            : customLabelStyles.topBlurred
+            ? customLabelStyles.topBlurred
+            : 14,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,
@@ -186,10 +208,14 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         useNativeDriver: true,
         duration: 300,
         easing: Easing.linear,
-        toValue: customLabelStyles.leftFocused,
+        toValue: customLabelStyles.leftFocused
+          ? customLabelStyles.leftFocused
+          : 0,
       }),
       Animated.timing(topAnimated, {
-        toValue: customLabelStyles.topFocused,
+        toValue: customLabelStyles.topFocused
+          ? customLabelStyles.topFocused
+          : 0,
         duration: 300,
         easing: Easing.linear,
         useNativeDriver: true,
@@ -205,10 +231,14 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           useNativeDriver: true,
           duration: 300,
           easing: Easing.linear,
-          toValue: customLabelStyles.leftBlurred,
+          toValue: customLabelStyles.leftBlurred
+            ? customLabelStyles.leftBlurred
+            : 0,
         }),
         Animated.timing(topAnimated, {
-          toValue: customLabelStyles.topBlurred,
+          toValue: customLabelStyles.topBlurred
+            ? customLabelStyles.topBlurred
+            : 14,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,

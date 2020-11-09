@@ -46,8 +46,10 @@ interface Props extends TextInputProps {
   showPasswordImageStyles?: ImageStyle;
   /**Style to the input */
   inputStyles?: TextStyle;
-  /**Path to your custom image for show/hide input */
+  /**Path to your custom image for show input */
   customShowPasswordImage?: string;
+  /**Path to your custom image for hide input */
+  customHidePasswordImage?: string;
   /**Custom Style for position, size and color for label, when it's focused or blurred*/
   customLabelStyles?: {
     leftFocused?: number;
@@ -269,11 +271,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   let imgSource = props.darkTheme
     ? secureText
-      ? makeVisibleBlack
-      : makeInvisibleBlack
+      ? props.customShowPasswordImage ? props.customShowPasswordImage : makeVisibleBlack
+      : props.customHidePasswordImage ?  props.customHidePasswordImage : makeInvisibleBlack
     : secureText
-    ? makeVisibleWhite
-    : makeInvisibleWhite;
+    ? props.customShowPasswordImage ? props.customShowPasswordImage : makeVisibleWhite
+    : props.customHidePasswordImage ? props.customHidePasswordImage : makeInvisibleWhite;
 
   const style: Object = {
     zIndex: 3,
@@ -320,6 +322,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...setGlobalStyles.showCountdownStyles,
     ...props.showCountdownStyles,
   };
+
+ 
 
   return (
     <View style={containerStyles}>
@@ -371,6 +375,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 let newValue = '';
 
                 for (let i = 0; i < val.length; i++) {
+                  if (!props.mask[i].match(/[^0-9]/) && props.mask[i] < val[i]) {
+                    return props.onChangeText ? props.onChangeText(props.value ? props.value : ''): false;
+                  }
+
                   if (
                     props.mask[i].match(/[^0-9A-Za-z]/) &&
                     props.mask[i] !== val[i]
@@ -472,20 +480,14 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         }}
         style={input}
       />
-      {props.isPassword ? (
+      {props.isPassword && (
         <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
           <Image
-            source={
-              props.customShowPasswordImage !== undefined
-                ? props.customShowPasswordImage
-                : imgSource
-            }
+            source={imgSource}
             resizeMode="contain"
             style={img}
           />
         </TouchableOpacity>
-      ) : (
-        <View />
       )}
       {props.showCountdown && props.maxLength && (
         <Text style={countdown}>

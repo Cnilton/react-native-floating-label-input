@@ -61,7 +61,13 @@ Props relating mask:
 - maskType?: 'currency' | 'phone' | 'date' | 'card';
 - currencyDivider: ',' | '.';
 
-Currently the mask will take effect in all maskTypes, except 'currency', wich is made automatically when maskType is set as currency. The reason is because currency is dynamic within the input value. If you want to change the thousands divider to other pattern, just insert the prop currencyDivider with one of: ',' or '.'.
+* Numbers in Mask
+
+  Currently the mask filters number from higher to lower. For example the mask="345" will allow only the max number of "345" and lower, like "344", "343" etc. If you want to allow all numbers in a digit, just put "9" at the desired spot.
+
+* Currency
+
+  Currently the mask will take effect in all maskTypes, except 'currency', wich is made automatically when maskType is set as currency. The reason is because currency is dynamic within the input value. If you want to change the thousands divider to other pattern, just insert the prop currencyDivider with one of: ',' or '.'.
 
 <img src ="https://i.imgur.com/iKbez6d.gif" width="40%"/>
 
@@ -96,7 +102,7 @@ const app: React.FC = () => {
       <FloatingLabelInput
         label="Phone"
         value={phone}
-        mask="(99)98765-4321"
+        mask="(99)99999-9999"
         keyboardType="numeric"
         onChangeText={value => setPhone(value)}
       />
@@ -197,7 +203,8 @@ const app: React.FC = () => {
         //  maxDecimalPlaces={2} // Set maximum decimal places, default is 2
         //  isFocused={false} // If you override the onFocus/onBlur props, you must handle this prop
         //  customLabelStyles={{}} // custom Style for position, size and color for label, when it's focused or blurred
-        //  customShowPasswordImage={} // pass the image source to set your custom image
+        //  customShowPasswordImage={} // pass the image source to set your custom show image
+        //  customHidePasswordImage={} // pass the image source to set your custom hide image
         //  labelStyles={{}} // add your styles to the floating label component
         //  showPasswordImageStyles={{}} // add your styles to the 'show password image' component
         //  containerStyles={{}} // add your styles to container of whole component
@@ -231,7 +238,7 @@ const app: React.FC = () => {
         }}
       />
       <FloatingLabelInput
-        label="place"
+        label="Password"
         value={password}
         isPassword={true}
         darkTheme={true}
@@ -246,12 +253,21 @@ export default app;
 ```
 
 - All commented options above are optional.
-- If you want to use the "customShowPasswordImage" prop, provide a image path, for example:
+- If you want to use the "customShowPasswordImage" prop or "customHidePasswordImage" prop, provide a image path, for example:
 
 ```javascript
 import showPassword from '../assets/images/yourImage';
+import hidePassword from '../assets/images/yourImage2';
 // ...
-customShowPasswordImage = { showPassword };
+<FloatingLabelInput
+  label="Password"
+  value={password}
+  isPassword={true}
+  onChangeText={text => setPassword(text)}
+  customShowPasswordImage={showPassword}
+  customHidePasswordImage={hidePassword}
+/>
+
 ```
 
 ## Contributing

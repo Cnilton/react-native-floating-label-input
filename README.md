@@ -263,6 +263,9 @@ const app: React.FC = () => {
       <FloatingLabelInput
         //  mask="99/99/9999" // Set mask to your input
         //  maskType="date" // Set mask type
+        //  staticLabel // Set this to true if you want the label to be always at a set position. Commonly used with hint for displaying both label and hint for your input. For changing the position of the label with this prop as true, use the **customLabelStyles** _topFocused_ and _leftFocused_ to adjust the wanted position. Default false.
+        //  hint="" // Hint displays only when staticLabel prop is set to true. This prop is used to show a preview of the input to the user.
+        //  hintTextColor="#ccc" // Set the color to the hint
         //  currencyDivider="," // Set currency thousands divider, default is ","
         //  maxDecimalPlaces={2} // Set maximum decimal places, default is 2
         //  isFocused={false} // If you override the onFocus/onBlur props, you must handle this prop

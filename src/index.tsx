@@ -57,16 +57,7 @@ interface Props extends TextInputProps {
   /** Path to your custom image for hide input */
   customHidePasswordImage?: string;
   /** Custom Style for position, size and color for label, when it's focused or blurred*/
-  customLabelStyles?: {
-    leftFocused?: number;
-    leftBlurred?: number;
-    topFocused?: number;
-    topBlurred?: number;
-    fontSizeFocused?: number;
-    fontSizeBlurred?: number;
-    colorFocused?: string;
-    colorBlurred?: string;
-  };
+  customLabelStyles?: CustomLabelProps;
   /** Required if onFocus or onBlur is overrided */
   isFocused?: boolean;
   /** Set a mask to your input*/
@@ -89,6 +80,23 @@ interface Props extends TextInputProps {
   countdownLabel?: string;
 }
 
+interface SetGlobalStyles {
+  /** Set global styles to all floating-label-inputs container*/
+  containerStyles?: ViewStyle,
+  /** Set global custom styles to all floating-label-inputs labels*/
+  customLabelStyles?: CustomLabelProps,
+  /** Set global styles to all floating-label-inputs input*/
+  inputStyles?: TextStyle,
+  /** Set global styles to all floating-label-inputs label*/
+  labelStyles?: TextStyle,
+  /** Set global styles to all floating-label-inputs show password container*/
+  showPasswordContainerStyles?: ViewStyle,
+  /** Set global styles to all floating-label-inputs show password image*/
+  showPasswordImageStyles?: ImageStyle,
+  /** Set global style to the countdown text */
+  showCountdownStyles?: TextStyle,
+}
+
 interface CustomLabelProps {
   leftFocused?: number;
   leftBlurred?: number;
@@ -100,22 +108,22 @@ interface CustomLabelProps {
   colorBlurred?: string;
 }
 
-/**Set global styles for all your floating-label-inputs*/
-const setGlobalStyles = {
+  /** Set global styles for all your floating-label-inputs*/
+const setGlobalStyles: SetGlobalStyles = {
   /**Set global styles to all floating-label-inputs container*/
-  containerStyles: {} as ViewStyle,
+  containerStyles: undefined as ViewStyle | undefined,
   /**Set global custom styles to all floating-label-inputs labels*/
-  customLabelStyles: {} as CustomLabelProps,
+  customLabelStyles: undefined as CustomLabelProps | undefined,
   /**Set global styles to all floating-label-inputs input*/
-  inputStyles: {} as TextStyle,
+  inputStyles: undefined as TextStyle | undefined,
   /**Set global styles to all floating-label-inputs label*/
-  labelStyles: {} as TextStyle,
+  labelStyles: undefined as TextStyle | undefined,
   /**Set global styles to all floating-label-inputs show password container*/
-  showPasswordContainerStyles: {} as ViewStyle,
+  showPasswordContainerStyles: undefined as ViewStyle | undefined,
   /**Set global styles to all floating-label-inputs show password image*/
-  showPasswordImageStyles: {} as ImageStyle,
+  showPasswordImageStyles: undefined as ImageStyle | undefined,
   /**Set global style to the countdown text */
-  showCountdownStyles: {} as TextStyle,
+  showCountdownStyles: undefined as TextStyle | undefined,
 };
 
 interface InputRef {
@@ -138,12 +146,14 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
+  console.log(setGlobalStyles)
+
   customLabelStyles = {
     fontSizeFocused: 10,
     fontSizeBlurred: 14,
     colorFocused: '#49658c',
     colorBlurred: '#49658c',
-    ...setGlobalStyles.customLabelStyles,
+    ...setGlobalStyles?.customLabelStyles,
     ...customLabelStyles,
   };
 
@@ -159,7 +169,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   
   const [topAnimated] = useState(
     new Animated.Value(staticLabel ? ( customLabelStyles?.topFocused !== undefined ? customLabelStyles.topFocused: -10):
-      customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 14,
+      customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 13,
     ),
   );
 
@@ -168,10 +178,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     if (isFocused === undefined) {
       if (value !== '' || selection?.end !== undefined) {
         handleFocus();
-        setIsFocused(true);
       } else {
         handleBlur();
-        setIsFocused(false);
       }
     }
   }
@@ -179,6 +187,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   useEffect(() => {
     if(!staticLabel){
+
     if (isFocused !== undefined) {
       setIsFocused(isFocused);
       Animated.parallel([
@@ -201,7 +210,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
               : 0
             : customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
-            : 14,
+            : 13,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,
@@ -247,7 +256,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   function handleBlur() {
     if(!staticLabel){
-    if (value === '' || value == null) {
+    if (value === '' || value === null) {
       Animated.parallel([
         Animated.timing(leftAnimated, {
           useNativeDriver: true,
@@ -260,15 +269,16 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         Animated.timing(topAnimated, {
           toValue: customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
-            : 14,
+            : 13,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
       ]).start();
+      setIsFocused(false);
+    } 
     }
-      
-    }setIsFocused(false);
+    
     setSelection({} as { start: number; end: number });
   }
 
@@ -299,16 +309,18 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     : customHidePasswordImage ? customHidePasswordImage : makeVisibleWhite;
 
   const style: TextStyle = {
-    zIndex: 999,
-    position: 'absolute',
+    left: labelStyles?.left !== undefined ? labelStyles?.left : 10,
     fontSize: staticLabel? (customLabelStyles?.fontSizeFocused !== undefined ? customLabelStyles.fontSizeFocused : 10) : !isFocused
       ? customLabelStyles.fontSizeBlurred
       : customLabelStyles.fontSizeFocused,
     color: !isFocused
       ? customLabelStyles.colorBlurred
       : customLabelStyles.colorFocused,
-    ...setGlobalStyles.labelStyles,
+    ...setGlobalStyles?.labelStyles,
     ...labelStyles,
+    position: 'absolute',
+    flex:1,
+    zIndex: 999,
   };
 
   let input: TextStyle = inputStyles !== undefined ? inputStyles : setGlobalStyles?.inputStyles !== undefined ? setGlobalStyles.inputStyles : styles.input
@@ -320,7 +332,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     zIndex: style?.zIndex !== undefined ? style.zIndex - 2 : 0,
   };
 
-  containerStyles = containerStyles !== undefined ? containerStyles : setGlobalStyles?.containerStyles !== undefined ? setGlobalStyles.containerStyles : styles.container;
+  containerStyles = containerStyles !== undefined ? containerStyles : setGlobalStyles?.containerStyles !== undefined ? setGlobalStyles?.containerStyles : styles.container;
 
   containerStyles = {
     flexDirection: 'row',
@@ -328,14 +340,14 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     zIndex: style?.zIndex !== undefined ? style.zIndex - 6: 0
   }
 
-  let toggleButton = showPasswordContainerStyles !== undefined ? showPasswordContainerStyles : setGlobalStyles?.showPasswordContainerStyles ? setGlobalStyles.showPasswordContainerStyles : styles.toggleButton;
+  let toggleButton = showPasswordContainerStyles !== undefined ? showPasswordContainerStyles : setGlobalStyles?.showPasswordContainerStyles !== undefined ? setGlobalStyles.showPasswordContainerStyles : styles.toggleButton;
   
   toggleButton = {
     ...toggleButton,
     alignSelf: 'center',
   }
 
-  let img = showPasswordImageStyles !== undefined ? showPasswordImageStyles : setGlobalStyles?.showPasswordImageStyles ? setGlobalStyles.showPasswordImageStyles : styles.img;
+  let img = showPasswordImageStyles !== undefined ? showPasswordImageStyles : setGlobalStyles?.showPasswordImageStyles !== undefined ? setGlobalStyles.showPasswordImageStyles : styles.img;
 
   img = {
     height: 25,
@@ -345,7 +357,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   const countdown = {
     ...styles.countdown,
-    ...setGlobalStyles.showCountdownStyles,
+    ...setGlobalStyles?.showCountdownStyles,
     ...showCountdownStyles,
   };
 

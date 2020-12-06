@@ -1,9 +1,10 @@
 ![npm](https://img.shields.io/npm/v/react-native?color=%232fa90f&label=react-native&style=plastic)
 ![npm](https://img.shields.io/npm/dm/react-native-floating-label-input?style=plastic)
+![npm](https://img.shields.io/npm/dt/react-native-floating-label-input?style=plastic)
 
 # About
 
-This is a React-Native TextInput component, containing a floating placeholder, visible even after filled in, that you can freely modify its styles.
+This is a React-Native TextInput component, containing a floating placeholder, visible even after filled in, that you can freely modify its styles 💅🎉
 
 <img src ="https://i.imgur.com/Na1KLIE.gif" width="40%"/>
 
@@ -23,9 +24,72 @@ yarn add react-native-floating-label-input
 
 ## New Features
 
-Features as setGlobalStyles, mask and character count for multiline have been added! Checkout the usage:
+Mask has been updated, and some bugs should have been fixed. Features as **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
 
-### setGlobalStyles
+### staticLabel : boolean
+
+- Set this to true if you want the label to be always at a set position. Commonly used with hint for displaying both label and hint for your input. For changing the position of the label with this prop as true, use the **customLabelStyles** _topFocused_ and _leftFocused_ to adjust the wanted position. Default false.
+
+
+### hint : string
+
+- Hint displays only when staticLabel prop is set to true. This prop is used to show a preview of the input to the user.
+
+### hintTextColor : string
+
+- Set the color to the hint
+
+#### New props usage example
+
+<img src ="https://i.imgur.com/cgQsY20.gif" width="40%"/>
+
+```javascript
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
+
+const app: React.FC = () => {
+  const [phone, setPhone] = useState('');
+
+  return (
+    <View style={{padding: 50, flex: 1, backgroundColor: '#fff'}}>
+      <FloatingLabelInput
+        label="Phone"
+        value={phone}
+        staticLabel
+        hintTextColor={'#aaa'}
+        mask="99 (99) 99999-9999"
+        hint="55 (22) 98765-4321"
+        containerStyles={{
+          borderWidth: 2,
+          paddingHorizontal: 10,
+          backgroundColor: '#fff',
+          borderColor: 'blue',
+          borderRadius: 8,
+        }}
+        customLabelStyles={{
+          colorFocused: 'red',
+          fontSizeFocused: 12,
+        }}
+        labelStyles={{
+          backgroundColor: '#fff',
+          paddingHorizontal: 5,
+        }}
+        inputStyles={{
+          color: 'blue',
+          paddingHorizontal: 10,
+        }}
+        onChangeText={(value) => {
+          setPhone(value);
+        }}
+      />
+    </View>
+  );
+};
+export default app;
+```
+
+### setGlobalStyles : Object
 
 ```javascript
 // index.js or any other root file
@@ -61,9 +125,9 @@ Props relating mask:
 - maskType?: 'currency' | 'phone' | 'date' | 'card';
 - currencyDivider: ',' | '.';
 
-* Numbers in Mask
+<!-- * Numbers in Mask -->
 
-  Currently the mask filters number from higher to lower. For example the mask="345" will allow only the max number of "345" and lower, like "344", "343" etc. If you want to allow all numbers in a digit, just put "9" at the desired spot.
+  <!-- Currently the mask filters number from higher to lower. For example the mask="345" will allow only the max number of "345" and lower, like "344", "343" etc. If you want to allow all numbers in a digit, just put "9" at the desired spot. -->
 
 * Currency
 

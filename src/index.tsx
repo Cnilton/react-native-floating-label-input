@@ -146,8 +146,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
-  console.log(setGlobalStyles)
-
   customLabelStyles = {
     fontSizeFocused: 10,
     fontSizeBlurred: 14,

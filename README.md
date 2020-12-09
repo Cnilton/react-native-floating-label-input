@@ -24,7 +24,45 @@ yarn add react-native-floating-label-input
 
 ## New Features
 
-Mask has been updated, and some bugs should have been fixed. Features as **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
+Mask has been updated, and some bugs should have been fixed. Features as **onTogglePassword**, **customShowPasswordComponent**, **customHidePasswordComponent**, **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
+
+### onTogglePassword : (boolean) => void
+
+- Callback for show/hide password
+
+### customShowPasswordComponent and customHidePasswordComponent : JSX.Element
+
+- Set your own show/hide password component
+
+<img src ="https://i.imgur.com/mIRQay5.gif" width="40%"/>
+
+```javascript
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
+
+const app: React.FC = () => {
+  const [password, setPassword] = useState('');
+
+  return (
+    <View style={{padding: 50, flex: 1, backgroundColor: '#fff'}}>
+      <FloatingLabelInput
+        label="Password"
+        value={password}
+        onTogglePassword={(bool) => {
+          console.log(bool);
+        }}
+        customShowPasswordComponent={<Text>Show</Text>}
+        customHidePasswordComponent={<Text>Hide</Text>}
+        onChangeText={(value) => {
+          setPassword(value);
+        }}
+      />
+    </View>
+  );
+};
+export default app;
+```
 
 ### staticLabel : boolean
 
@@ -284,6 +322,8 @@ const app: React.FC = () => {
         //  showCountdown={false} // Set this to true to show the allowed number of characters remaining, default false
         //  countdownLabel="" // Set the label to be shown after the allowed number of characters remaining, default is ""
         //  onSubmit={() => this.yourFunction()} // adds callback to submit
+        //  customShowPasswordComponent={} // Set your own JSX.Element to be the show password element
+        //  customHidePasswordComponent={} // Set your own JSX.Element to be the hide password element
         label="Placeholder" // required
         value={value} // required
         onChange={value => setValue(value)} // required

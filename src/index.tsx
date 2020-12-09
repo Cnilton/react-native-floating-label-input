@@ -78,6 +78,12 @@ interface Props extends TextInputProps {
   showCountdownStyles?: TextStyle;
   /** Label for the remaining number of characters allowed shown after the number */
   countdownLabel?: string;
+  /** Set your custom show password component */
+  customShowPasswordComponent?: JSX.Element;
+  /** Set your custom hide password component */
+  customHidePasswordComponent?: JSX.Element;
+  /** Callback for show/hide password */
+  onTogglePassword?: (show:boolean)=>void;
 }
 
 interface SetGlobalStyles {
@@ -131,18 +137,17 @@ interface InputRef {
   blur(): void;
 }
 
-interface SelectionProps {
-  start: number;
-  end: number;
-}
-
 const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
-  {label,mask,isPassword,maxLength, inputStyles,showCountdown,showCountdownStyles,labelStyles,darkTheme,countdownLabel,currencyDivider,maskType,onChangeText,
-  customHidePasswordImage,customLabelStyles={},staticLabel, hint, hintTextColor, placeholder, placeholderTextColor,onSubmit,containerStyles,customShowPasswordImage,showPasswordContainerStyles, maxDecimalPlaces, multiline, showPasswordImageStyles,value="",onSelectionChange, ...rest},
+  {label,mask,isPassword,maxLength, inputStyles,showCountdown,
+    showCountdownStyles,labelStyles,darkTheme,countdownLabel,
+    currencyDivider,maskType,onChangeText,secureTextEntry,
+    customHidePasswordComponent, customShowPasswordComponent,
+    isFocused, onBlur, onFocus, onTogglePassword,
+  customHidePasswordImage,customLabelStyles={},staticLabel=false, hint, hintTextColor, placeholder, placeholderTextColor,onSubmit,containerStyles,customShowPasswordImage,showPasswordContainerStyles, maxDecimalPlaces, multiline, showPasswordImageStyles,value="",onSelectionChange, ...rest},
   ref,
 ) => {
-  const [selection,setSelection] = useState({} as SelectionProps)
-  const [isFocused, setIsFocused] = useState(false);
+  const [halfTop, setHalfTop] = useState(0)
+  const [isFocusedState, setIsFocused] = useState(false);
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
@@ -155,6 +160,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...customLabelStyles,
   };
 
+  const [opacityAnimated] = useState(new Animated.Value(0))
+
   const [leftAnimated] = useState(
     new Animated.Value(
       staticLabel ? (customLabelStyles?.leftFocused !== undefined ? customLabelStyles.leftFocused : 15):
@@ -166,57 +173,45 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   );
   
   const [topAnimated] = useState(
-    new Animated.Value(staticLabel ? ( customLabelStyles?.topFocused !== undefined ? customLabelStyles.topFocused: -10):
-      customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 13,
+    new Animated.Value(staticLabel ? ( customLabelStyles?.topFocused !== undefined ? customLabelStyles.topFocused: 0):
+      customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 0,
     ),
   );
 
   useEffect(() => {
     if(!staticLabel){
-    if (isFocused === undefined) {
-      if (value !== '' || selection?.end !== undefined) {
-        handleFocus();
+      if(isFocused === undefined){
+      if (value !== '' || isFocusedState) {
+        setIsFocused(true);
       } else {
-        handleBlur();
+        if (value === '' || value === null) {
+        setIsFocused(false);
+        }
       }
     }
-  }
+    }
   }, [value]);
 
   useEffect(() => {
     if(!staticLabel){
-
-    if (isFocused !== undefined) {
-      setIsFocused(isFocused);
-      Animated.parallel([
-        Animated.timing(leftAnimated, {
-          useNativeDriver: true,
-          duration: 300,
-          easing: Easing.linear,
-          toValue: isFocused
-            ? customLabelStyles.leftFocused
-              ? customLabelStyles.leftFocused
-              : 0
-            : customLabelStyles.leftBlurred
-            ? customLabelStyles.leftBlurred
-            : 0,
-        }),
-        Animated.timing(topAnimated, {
-          toValue: isFocused
-            ? customLabelStyles.topFocused
-              ? customLabelStyles.topFocused
-              : 0
-            : customLabelStyles.topBlurred
-            ? customLabelStyles.topBlurred
-            : 13,
-          duration: 300,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      if (isFocused !== undefined) {
+        if (value !== '' || isFocused) {
+          setIsFocused(true);
+        }else{
+          setIsFocused(false);
+        }
+      }
     }
-  }
-  }, [isFocused]);
+  }, [isFocused,value]);
+
+  useEffect(()=>{
+    if(isFocusedState){
+      animateFocus();
+    }else{
+      animateBlur();
+    }
+  },[isFocusedState])
+
 
   useImperativeHandle(ref, () => ({
     focus() {
@@ -227,7 +222,38 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     },
   }));
 
-  function handleFocus() {
+  useEffect(()=>{    
+    if((customLabelStyles.topFocused === undefined && isFocusedState)){
+      Animated.timing(topAnimated, {
+        toValue: customLabelStyles.topFocused
+          ? customLabelStyles.topFocused
+          : (-halfTop) ,
+        duration: 300,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start()
+    }else{
+      if(staticLabel){
+        Animated.parallel([
+          Animated.timing(opacityAnimated, {
+            toValue: 1,
+            duration: 500,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+        Animated.timing(topAnimated, {
+          toValue: customLabelStyles.topFocused
+            ? customLabelStyles.topFocused
+            : (-halfTop) ,
+          duration: 500,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),]).start()
+      }
+    }
+  },[halfTop])
+
+  function animateFocus(){
     if(!staticLabel){
       Animated.parallel([
         Animated.timing(leftAnimated, {
@@ -241,20 +267,17 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         Animated.timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
-            : 0,
+            : (-halfTop)/2,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
       ]).start();
     }
-    
-    setIsFocused(true);
   }
 
-  function handleBlur() {
+  function animateBlur(){
     if(!staticLabel){
-    if (value === '' || value === null) {
       Animated.parallel([
         Animated.timing(leftAnimated, {
           useNativeDriver: true,
@@ -267,17 +290,23 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         Animated.timing(topAnimated, {
           toValue: customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
-            : 13,
+            : 0,
           duration: 300,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
       ]).start();
-      setIsFocused(false);
-    } 
     }
-    
-    setSelection({} as { start: number; end: number });
+  }
+
+  function handleFocus() {
+      setIsFocused(true);
+  }
+
+  function handleBlur() {
+    if (value === '') {
+      setIsFocused(false);
+    }
   }
 
   function setFocus() {
@@ -285,6 +314,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }
 
   function _toggleVisibility() {
+    if(onTogglePassword){onTogglePassword(!secureText);}
     if (secureText) {
       setSecureText(false);
     } else {
@@ -307,17 +337,22 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     : customHidePasswordImage ? customHidePasswordImage : makeVisibleWhite;
 
   const style: TextStyle = {
-    left: labelStyles?.left !== undefined ? labelStyles?.left : 10,
-    fontSize: staticLabel? (customLabelStyles?.fontSizeFocused !== undefined ? customLabelStyles.fontSizeFocused : 10) : !isFocused
-      ? customLabelStyles.fontSizeBlurred
-      : customLabelStyles.fontSizeFocused,
-    color: !isFocused
-      ? customLabelStyles.colorBlurred
-      : customLabelStyles.colorFocused,
     ...setGlobalStyles?.labelStyles,
     ...labelStyles,
+    left: labelStyles?.left !== undefined ? labelStyles?.left : 10,
+    fontSize: staticLabel? (customLabelStyles?.fontSizeFocused !== undefined ? customLabelStyles.fontSizeFocused : 10) : !isFocusedState
+      ? customLabelStyles.fontSizeBlurred
+      : customLabelStyles.fontSizeFocused,
+    color: !isFocusedState
+      ? customLabelStyles.colorBlurred
+      : customLabelStyles.colorFocused,
+    alignSelf: 'center',
     position: 'absolute',
     flex:1,
+    opacity: staticLabel ? opacityAnimated.interpolate({
+      inputRange: [0, 1],
+        outputRange: [0, 1]
+    }) : labelStyles?.opacity ? labelStyles.opacity : setGlobalStyles?.labelStyles?.opacity ? setGlobalStyles.labelStyles.opacity : 1,
     zIndex: 999,
   };
 
@@ -333,8 +368,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   containerStyles = containerStyles !== undefined ? containerStyles : setGlobalStyles?.containerStyles !== undefined ? setGlobalStyles?.containerStyles : styles.container;
 
   containerStyles = {
-    flexDirection: 'row',
     ...containerStyles,
+    flexDirection: 'row',
     zIndex: style?.zIndex !== undefined ? style.zIndex - 6: 0
   }
 
@@ -360,7 +395,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   };
 
   return (
-    <View style={containerStyles}>
+    <View style={containerStyles} 
+    onLayout={(event) => {
+      console.log(!staticLabel)
+      var {height} = event.nativeEvent.layout
+      setHalfTop((height + (!staticLabel ? style?.fontSize !== undefined ? style.fontSize : 0 : 0))/2)
+    }}>
       <Animated.Text
         onPress={setFocus}
         style={[
@@ -396,8 +436,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? isPassword && secureText
             : false
         }
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+        onFocus={onFocus !== undefined ? onFocus : handleFocus}
+        onBlur={onBlur !== undefined ? onBlur: handleBlur}
         ref={inputRef}
         {...rest}
         maxLength={
@@ -410,14 +450,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         placeholderTextColor={hintTextColor}
         placeholder={staticLabel && hint ? hint : ''}
         multiline={multiline}
-        onSelectionChange={(
-          evt: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
-        ) => {
-          setSelection(evt.nativeEvent.selection);
-          if (onSelectionChange !== undefined) {
-            onSelectionChange(evt);
-          }
-        }}
         onChangeText={(val: string) => {
           if (maskType !== undefined || mask !== undefined) {
             if (maskType !== 'currency' && mask !== undefined) {          
@@ -536,11 +568,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       />
       {isPassword && (
         <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
-          <Image
+          {(secureText && customShowPasswordComponent !== undefined) ? customShowPasswordComponent : (!secureText && customHidePasswordComponent!== undefined) ? customHidePasswordComponent : <Image
             source={imgSource}
             resizeMode="contain"
             style={img}
-          />
+          />}
         </TouchableOpacity>
       )}
       {showCountdown && maxLength && (

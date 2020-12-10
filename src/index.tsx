@@ -17,8 +17,6 @@ import {
   TextStyle,
   ViewStyle,
   ImageStyle,
-  NativeSyntheticEvent,
-  TextInputSelectionChangeEventData,
 } from 'react-native';
 import { styles } from './styles';
 
@@ -27,7 +25,7 @@ import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
 
-interface Props extends TextInputProps {
+export interface Props extends TextInputProps {
   /** Style to the container of whole component */
   containerStyles?: ViewStyle;
   /** Changes the color for hide/show password image */
@@ -86,7 +84,7 @@ interface Props extends TextInputProps {
   onTogglePassword?: (show:boolean)=>void;
 }
 
-interface SetGlobalStyles {
+export interface SetGlobalStyles {
   /** Set global styles to all floating-label-inputs container*/
   containerStyles?: ViewStyle,
   /** Set global custom styles to all floating-label-inputs labels*/
@@ -103,7 +101,7 @@ interface SetGlobalStyles {
   showCountdownStyles?: TextStyle,
 }
 
-interface CustomLabelProps {
+export interface CustomLabelProps {
   leftFocused?: number;
   leftBlurred?: number;
   topFocused?: number;
@@ -227,7 +225,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       Animated.timing(topAnimated, {
         toValue: customLabelStyles.topFocused
           ? customLabelStyles.topFocused
-          : (-halfTop) ,
+          : (-halfTop)/2,
         duration: 300,
         easing: Easing.linear,
         useNativeDriver: true,
@@ -397,7 +395,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   return (
     <View style={containerStyles} 
     onLayout={(event) => {
-      console.log(!staticLabel)
       var {height} = event.nativeEvent.layout
       setHalfTop((height + (!staticLabel ? style?.fontSize !== undefined ? style.fontSize : 0 : 0))/2)
     }}>

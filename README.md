@@ -24,7 +24,48 @@ yarn add react-native-floating-label-input
 
 ## New Features
 
-Mask has been updated, and some bugs should have been fixed. Features as **onTogglePassword**, **customShowPasswordComponent**, **customHidePasswordComponent**, **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
+Mask has been updated, and some bugs should have been fixed. Features as **leftComponent**, **onTogglePassword**, **customShowPasswordComponent**, **customHidePasswordComponent**, **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
+
+### leftComponent : JSX.Element
+
+- Add left component to your input. Usually used for displaying icon
+
+<img src="https://i.imgur.com/mds0v8h.png" width="40%">
+
+```javascript
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
+
+const app: React.FC = () => {
+  const [phone, setPhone] = useState('');
+
+  return (
+    <View style={{padding: 50, flex: 1, backgroundColor: '#fff'}}>
+      <FloatingLabelInput
+        label={'label'}
+        value={phone}
+        leftComponent={
+          <Image
+            style={{height: 30, width: 30}}
+            source={{
+              uri: 'https://image.flaticon.com/icons/png/512/25/25231.png',
+            }}
+          />
+        }
+        isPassword
+        onChangeText={(val) => setPhone(val)}
+        onFocus={focus}
+        onBlur={blur}
+        isFocused={focused}
+        customShowPasswordComponent={<Text>Show</Text>}
+        customHidePasswordComponent={<Text>Hide</Text>}
+      />
+    </View>
+  );
+};
+export default app;
+```
 
 ### onTogglePassword : (boolean) => void
 

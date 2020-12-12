@@ -347,10 +347,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     alignSelf: 'center',
     position: 'absolute',
     flex:1,
-    opacity: staticLabel ? opacityAnimated.interpolate({
-      inputRange: [0, 1],
-        outputRange: [0, 1]
-    }) : labelStyles?.opacity ? labelStyles.opacity : setGlobalStyles?.labelStyles?.opacity ? setGlobalStyles.labelStyles.opacity : 1,
     zIndex: 999,
   };
 
@@ -403,6 +399,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         style={[
           style,
           {
+            opacity: staticLabel ? opacityAnimated.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 1]
+            }) : labelStyles?.opacity ? labelStyles.opacity : setGlobalStyles?.labelStyles?.opacity ? setGlobalStyles.labelStyles.opacity : 1,        
             transform: [
               { translateX: leftAnimated },
               { translateY: topAnimated },

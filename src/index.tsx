@@ -279,7 +279,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       Animated.timing(topAnimated, {
         toValue: customLabelStyles.topFocused
           ? customLabelStyles.topFocused
-          : -halfTop / 2,
+          : -halfTop,
         duration: 300,
         easing: Easing.linear,
         useNativeDriver: true,

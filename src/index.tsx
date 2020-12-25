@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import {
   View,
-  Animated,
-  Easing,
+  Animated as ReactAnimated,
+  // Easing,
   TextInput,
   Image,
   Text,
@@ -20,7 +20,8 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent,
 } from 'react-native';
-import {styles} from './styles';
+import Animated, { Easing, timing } from 'react-native-reanimated';
+import { styles } from './styles';
 
 import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
@@ -42,7 +43,7 @@ export interface Props extends TextInputProps {
   label: string;
   /** Style to the label */
   labelStyles?: TextStyle;
-  /** Set this to true if is password to have a show/hide input and secureTextEntry automatically*/
+  /** Set this to true if is password to have a show/hide input and secureTextEntry automatically */
   isPassword?: true | false;
   /** Callback for action submit on the keyboard */
   onSubmit?: Function;
@@ -56,19 +57,19 @@ export interface Props extends TextInputProps {
   customShowPasswordImage?: string;
   /** Path to your custom image for hide input */
   customHidePasswordImage?: string;
-  /** Custom Style for position, size and color for label, when it's focused or blurred*/
+  /** Custom Style for position, size and color for label, when it's focused or blurred */
   customLabelStyles?: CustomLabelProps;
   /** Required if onFocus or onBlur is overrided */
   isFocused?: boolean;
-  /** Set a mask to your input*/
+  /** Set a mask to your input */
   mask?: string;
-  /** Set mask type*/
+  /** Set mask type */
   maskType?: 'currency' | 'phone' | 'date' | 'card';
-  /** Set currency thousand dividers*/
+  /** Set currency thousand dividers */
   currencyDivider?: ',' | '.';
   /** Maxinum number of decimal places allowed for currency mask. */
   maxDecimalPlaces?: number;
-  /** Changes the input from single line input to multiline input*/
+  /** Changes the input from single line input to multiline input */
   multiline?: true | false;
   /** Maxinum number of characters allowed. Overriden by mask if present */
   maxLength?: number;
@@ -86,20 +87,22 @@ export interface Props extends TextInputProps {
   onTogglePassword?: (show: boolean) => void;
   /** Add left component to your input. Usually used for displaying icon */
   leftComponent?: JSX.Element;
+  /** Set custom animation duration. Default 300 ms */
+  animationDuration?: number;
 }
 
 export interface SetGlobalStyles {
-  /** Set global styles to all floating-label-inputs container*/
+  /** Set global styles to all floating-label-inputs container */
   containerStyles?: ViewStyle;
-  /** Set global custom styles to all floating-label-inputs labels*/
+  /** Set global custom styles to all floating-label-inputs labels */
   customLabelStyles?: CustomLabelProps;
-  /** Set global styles to all floating-label-inputs input*/
+  /** Set global styles to all floating-label-inputs input */
   inputStyles?: TextStyle;
-  /** Set global styles to all floating-label-inputs label*/
+  /** Set global styles to all floating-label-inputs label */
   labelStyles?: TextStyle;
-  /** Set global styles to all floating-label-inputs show password container*/
+  /** Set global styles to all floating-label-inputs show password container */
   showPasswordContainerStyles?: ViewStyle;
-  /** Set global styles to all floating-label-inputs show password image*/
+  /** Set global styles to all floating-label-inputs show password image */
   showPasswordImageStyles?: ImageStyle;
   /** Set global style to the countdown text */
   showCountdownStyles?: TextStyle;
@@ -124,19 +127,19 @@ export interface CustomLabelProps {
   colorBlurred?: string;
 }
 
-/** Set global styles for all your floating-label-inputs*/
+/** Set global styles for all your floating-label-inputs */
 const setGlobalStyles: SetGlobalStyles = {
-  /**Set global styles to all floating-label-inputs container*/
+  /**Set global styles to all floating-label-inputs container */
   containerStyles: undefined as ViewStyle | undefined,
-  /**Set global custom styles to all floating-label-inputs labels*/
+  /**Set global custom styles to all floating-label-inputs labels */
   customLabelStyles: undefined as CustomLabelProps | undefined,
-  /**Set global styles to all floating-label-inputs input*/
+  /**Set global styles to all floating-label-inputs input */
   inputStyles: undefined as TextStyle | undefined,
-  /**Set global styles to all floating-label-inputs label*/
+  /**Set global styles to all floating-label-inputs label */
   labelStyles: undefined as TextStyle | undefined,
-  /**Set global styles to all floating-label-inputs show password container*/
+  /**Set global styles to all floating-label-inputs show password container */
   showPasswordContainerStyles: undefined as ViewStyle | undefined,
-  /**Set global styles to all floating-label-inputs show password image*/
+  /**Set global styles to all floating-label-inputs show password image */
   showPasswordImageStyles: undefined as ImageStyle | undefined,
   /**Set global style to the countdown text */
   showCountdownStyles: undefined as TextStyle | undefined,
@@ -146,6 +149,8 @@ interface InputRef {
   focus(): void;
   blur(): void;
 }
+
+const AnimatedText = Animated.createAnimatedComponent(Text);
 
 const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   {
@@ -186,9 +191,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     showPasswordImageStyles,
     value = '',
     onSelectionChange,
+    animationDuration,
     ...rest
   },
-  ref,
+  ref
 ) => {
   const [halfTop, setHalfTop] = useState(0);
   const [isFocusedState, setIsFocused] = useState(false);
@@ -204,7 +210,17 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...customLabelStyles,
   };
 
-  const [opacityAnimated] = useState(new Animated.Value(0));
+  const [fontSizeAnimated] = useState(
+    new Animated.Value(
+      isFocused
+        ? customLabelStyles.fontSizeFocused
+          ? customLabelStyles.fontSizeFocused
+          : 10
+        : customLabelStyles.fontSizeBlurred
+        ? customLabelStyles.fontSizeBlurred
+        : 14
+    )
+  );
 
   const [leftAnimated] = useState(
     new Animated.Value(
@@ -215,8 +231,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         : customLabelStyles != undefined &&
           customLabelStyles.leftBlurred !== undefined
         ? customLabelStyles.leftBlurred
-        : 0,
-    ),
+        : 0
+    )
   );
 
   const [topAnimated] = useState(
@@ -227,30 +243,28 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           : 0
         : customLabelStyles.topBlurred
         ? customLabelStyles.topBlurred
-        : 0,
-    ),
+        : 0
+    )
   );
 
   useEffect(() => {
-    if  (!staticLabel) {
-      if  (isFocused === undefined) {
+    if (!staticLabel) {
+      if (isFocused === undefined) {
         if (value !== '' || isFocusedState) {
           setIsFocused(true);
-        } else {
-          if (value === '' || value === null) {
-            setIsFocused(false);
-          }
+        } else if (value === '' || value === null) {
+          setIsFocused(false);
         }
       }
     }
   }, [value]);
 
   useEffect(() => {
-    if  (!staticLabel) {
+    if (!staticLabel) {
       if (isFocused !== undefined) {
         if (value !== '' || isFocused) {
           setIsFocused(true);
-        } else  {
+        } else {
           setIsFocused(false);
         }
       }
@@ -258,9 +272,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }, [isFocused, value]);
 
   useEffect(() => {
-    if  (isFocusedState) {
+    if (isFocusedState) {
       animateFocus();
-    } else  {
+    } else {
       animateBlur();
     }
   }, [isFocusedState]);
@@ -273,80 +287,115 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       inputRef.current.blur();
     },
   }));
+  let a = false;
 
   useEffect(() => {
-    if  (customLabelStyles.topFocused === undefined && isFocusedState) {
-      Animated.timing(topAnimated, {
-        toValue: customLabelStyles.topFocused
-          ? customLabelStyles.topFocused
-          : -halfTop / 2,
-        duration: 300,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start();
-    } else  {
-      if  (staticLabel) {
-        Animated.parallel([
-          Animated.timing(opacityAnimated, {
-            toValue: 1,
-            duration: 500,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.timing(topAnimated, {
-            toValue: customLabelStyles.topFocused
-              ? customLabelStyles.topFocused
-              : -halfTop,
-            duration: 500,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-        ]).start();;
-      }
-    }
-  }, [halfTop]);;
-
-  function animateFocus() {
-    if  (!staticLabel) {
-      Animated.parallel([
-        Animated.timing(leftAnimated, {
-          useNativeDriver: true,
-          duration: 300,
+    if (
+      !staticLabel &&
+      customLabelStyles.topFocused === undefined &&
+      isFocusedState
+    ) {
+      ReactAnimated.parallel([
+        // @ts-ignore
+        timing(leftAnimated, {
+          duration: animationDuration ? animationDuration : 300,
           easing: Easing.linear,
           toValue: customLabelStyles.leftFocused
             ? customLabelStyles.leftFocused
             : 0,
         }),
-        Animated.timing(topAnimated, {
+        // @ts-ignore
+        timing(fontSizeAnimated, {
+          toValue: customLabelStyles.fontSizeFocused
+            ? customLabelStyles.fontSizeFocused
+            : 10,
+          duration: animationDuration ? animationDuration : 300,
+          easing: Easing.linear,
+        }),
+        // @ts-ignore
+        timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
-            : -halfTop / 2,
-          duration: 300,
+            : -halfTop +
+              (isFocusedState
+                ? customLabelStyles.fontSizeFocused
+                  ? customLabelStyles.fontSizeFocused
+                  : 10
+                : customLabelStyles.fontSizeBlurred
+                ? customLabelStyles.fontSizeBlurred
+                : 14),
+          duration: animationDuration ? animationDuration : 300,
           easing: Easing.linear,
-          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [halfTop]);
+
+  function animateFocus() {
+    if (!staticLabel) {
+      ReactAnimated.parallel([
+        // @ts-ignore
+        timing(leftAnimated, {
+          duration: animationDuration ? animationDuration : 300,
+          easing: Easing.linear,
+          toValue: customLabelStyles.leftFocused
+            ? customLabelStyles.leftFocused
+            : 0,
+        }),
+        // @ts-ignore
+        timing(fontSizeAnimated, {
+          toValue: customLabelStyles.fontSizeFocused
+            ? customLabelStyles.fontSizeFocused
+            : 10,
+          duration: animationDuration ? animationDuration : 300,
+          easing: Easing.linear,
+        }),
+        // @ts-ignore
+        timing(topAnimated, {
+          toValue: customLabelStyles.topFocused
+            ? customLabelStyles.topFocused
+            : -halfTop +
+              (isFocusedState
+                ? customLabelStyles.fontSizeFocused
+                  ? customLabelStyles.fontSizeFocused
+                  : 10
+                : customLabelStyles.fontSizeBlurred
+                ? customLabelStyles.fontSizeBlurred
+                : 14),
+          duration: animationDuration ? animationDuration : 300,
+          easing: Easing.linear,
         }),
       ]).start();
     }
   }
 
   function animateBlur() {
-    if  (!staticLabel) {
-      Animated.parallel([
-        Animated.timing(leftAnimated, {
-          useNativeDriver: true,
-          duration: 300,
+    if (!staticLabel) {
+      // Animated.parallel([
+      ReactAnimated.parallel([
+        // @ts-ignore
+        timing(leftAnimated, {
+          duration: animationDuration ? animationDuration : 300,
           easing: Easing.linear,
           toValue: customLabelStyles.leftBlurred
             ? customLabelStyles.leftBlurred
             : 0,
         }),
-        Animated.timing(topAnimated, {
+        // @ts-ignore
+        timing(fontSizeAnimated, {
+          toValue: customLabelStyles.fontSizeBlurred
+            ? customLabelStyles.fontSizeBlurred
+            : 14,
+          duration: animationDuration ? animationDuration : 300,
+          easing: Easing.linear,
+        }),
+        // @ts-ignore
+        timing(topAnimated, {
           toValue: customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
             : 0,
-          duration: 300,
+          duration: animationDuration ? animationDuration : 300,
           easing: Easing.linear,
-          useNativeDriver: true,
         }),
       ]).start();
     }
@@ -367,7 +416,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }
 
   function _toggleVisibility() {
-    if  (onTogglePassword) {
+    if (onTogglePassword) {
       onTogglePassword(!secureText);
     }
     if (secureText) {
@@ -385,33 +434,31 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   let imgSource = darkTheme
     ? secureText
-      ? customShowPasswordImage
-        ? customShowPasswordImage
-        : makeInvisibleBlack
-      : customHidePasswordImage
-      ? customHidePasswordImage
-      : makeVisibleBlack
+      ? customShowPasswordImage || makeInvisibleBlack
+      : customHidePasswordImage || makeVisibleBlack
     : secureText
-    ? customShowPasswordImage
-      ? customShowPasswordImage
-      : makeInvisibleWhite
-    : customHidePasswordImage
-    ? customHidePasswordImage
-    : makeVisibleWhite;
+    ? customShowPasswordImage || makeInvisibleWhite
+    : customHidePasswordImage || makeVisibleWhite;
 
   const style: TextStyle = {
     ...setGlobalStyles?.labelStyles,
     ...labelStyles,
     left: labelStyles?.left !== undefined ? labelStyles?.left : 5,
-    fontSize: staticLabel ? (customLabelStyles?.fontSizeFocused !== undefined ? customLabelStyles.fontSizeFocused : 10) : !isFocusedState
+    fontSize: staticLabel
+      ? customLabelStyles?.fontSizeFocused !== undefined
+        ? customLabelStyles.fontSizeFocused
+        : 10
+      : !isFocusedState
       ? customLabelStyles.fontSizeBlurred
       : customLabelStyles.fontSizeFocused,
     color: !isFocusedState
       ? customLabelStyles.colorBlurred
       : customLabelStyles.colorFocused,
+    // backgroundColor: 'red',
     alignSelf: 'center',
     position: 'absolute',
     flex: 1,
+    // top:0,
     zIndex: 999,
   };
 
@@ -420,7 +467,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? inputStyles
       : setGlobalStyles?.inputStyles !== undefined
       ? setGlobalStyles.inputStyles
-      : styles.input;;
+      : styles.input;
 
   input = {
     ...input,
@@ -441,6 +488,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...containerStyles,
     alignItems: 'center',
     flexDirection: 'row',
+    flex: 1,
     zIndex: style?.zIndex !== undefined ? style.zIndex - 6 : 0,
   };
 
@@ -480,19 +528,19 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       if (maskType !== 'currency' && mask !== undefined) {
         let unmasked = val.replace(/[^0-9A-Za-z]/g, '');
 
-  // pegar as posições dos caracteres especiais.
+        // pegar as posições dos caracteres especiais.
         let positions = [];
-        for  (let i = 0; i < mask.length; i++) {
-          if  (mask[i].match(/[^0-9A-Za-z]/)) {
+        for (let i = 0; i < mask.length; i++) {
+          if (mask[i].match(/[^0-9A-Za-z]/)) {
             positions.push(i);
           }
         }
 
         let newValue = '';
         let offset = 0;
-        for  (let j = 0; j < unmasked.length; j++) {
+        for (let j = 0; j < unmasked.length; j++) {
           // adicionar caracteres especiais
-          while  (mask[j + offset]?.match(/[^0-9A-Za-z]/)) {
+          while (mask[j + offset]?.match(/[^0-9A-Za-z]/)) {
             newValue += mask[j + offset];
             offset++;
           }
@@ -500,7 +548,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         }
 
         return onChangeText ? onChangeText(newValue) : false;
-      } else if (maskType === 'currency') {
+      }
+      if (maskType === 'currency') {
         let divider = '';
         let decimal = '';
         if (currencyDivider === ',') {
@@ -521,7 +570,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                   intVal
                     .split('')
                     .splice(intVal.length - i, 3)
-                    .join(''),
+                    .join('')
                 );
               }
 
@@ -546,127 +595,129 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
               value.split(decimal)[1].length === decimalPlaces
             ) {
               return;
-            } else {
-              if (val.split(decimal)[1].length > decimalPlaces) {
-                val = val.slice(0, val.length - 1);
-              }
             }
-          } else {
-            if (val.length > 3) {
-              let arr: string[] = [];
-              let unmasked = val.replace(/[,.]/g, '');
-              for (let i = 0; i < unmasked.length; i += 3) {
-                arr.push(
-                  unmasked
-                    .split('')
-                    .splice(unmasked.length - i, 3)
-                    .join(''),
-                );
-              }
+            if (val.split(decimal)[1].length > decimalPlaces) {
+              val = val.slice(0, val.length - 1);
+            }
+          } else if (val.length > 3) {
+            let arr: string[] = [];
+            let unmasked = val.replace(/[,.]/g, '');
+            for (let i = 0; i < unmasked.length; i += 3) {
+              arr.push(
+                unmasked
+                  .split('')
+                  .splice(unmasked.length - i, 3)
+                  .join('')
+              );
+            }
 
-              arr = arr.reverse();
-              arr.pop();
-              let initial = arr.join('');
-              if (unmasked.includes(initial)) {
-                unmasked = unmasked.replace(initial, '');
-              }
-              val = unmasked + divider + arr.join(divider);
+            arr = arr.reverse();
+            arr.pop();
+            let initial = arr.join('');
+            if (unmasked.includes(initial)) {
+              unmasked = unmasked.replace(initial, '');
             }
+            val = unmasked + divider + arr.join(divider);
           }
         }
         return onChangeText ? onChangeText(val) : false;
-      } else {
-        return onChangeText ? onChangeText(val) : false;
       }
-    } else {
       return onChangeText ? onChangeText(val) : false;
     }
+    return onChangeText ? onChangeText(val) : false;
   }
 
   function onLayout(event: LayoutChangeEvent) {
-    var {height} = event.nativeEvent.layout;
-    setHalfTop(
-      (height +
-        (!staticLabel
-          ? style?.fontSize !== undefined
-            ? style.fontSize
-            : 0
-          : 0)) /
-        2,
-    );;
+    let { height } = event.nativeEvent.layout;
+    setHalfTop(height / 2);
   }
 
   return (
     <TouchableWithoutFeedback onPress={setFocus} onLayout={onLayout}>
-      <View style={containerStyles}>
-        {leftComponent && leftComponent}
-        <View style={{flex: 1, flexDirection: 'row'}}>
-          <Animated.Text
+      <View style={{ flexDirection: 'row' }}>
+        {staticLabel && (
+          <AnimatedText
             onPress={setFocus}
             style={[
               style,
               {
-                opacity: staticLabel
-                  ? opacityAnimated.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    })
-                  : labelStyles?.opacity
-                  ? labelStyles.opacity
-                  : setGlobalStyles?.labelStyles?.opacity
-                  ? setGlobalStyles.labelStyles.opacity
-                  : 1,
-                transform: [
-                  {translateX: leftAnimated},
-                  {translateY: topAnimated},
-                ],
+                left: labelStyles?.left ? labelStyles?.left : customLabelStyles.leftFocused
+                  ? customLabelStyles.leftFocused
+                  : 20,
+                top: -(style?.fontSize ? style?.fontSize : 10) / 2,
               },
-            ]}>
+            ]}
+          >
             {label}
-          </Animated.Text>
-          <TextInput
-            value={value}
-            onSubmitEditing={onSubmitEditing}
-            secureTextEntry={
-              isPassword !== undefined ? isPassword && secureText : false
-            }
-            onFocus={onFocus !== undefined ? onFocus : handleFocus}
-            onBlur={onBlur !== undefined ? onBlur  : handleBlur}
-            ref={inputRef}
-            {...rest}
-            maxLength={
-              mask !== undefined
-                ? mask.length
-                : maxLength !== undefined
-                ? maxLength
-                : undefined
-            }
-            placeholderTextColor={hintTextColor}
-            placeholder={(staticLabel ||isFocusedState) && hint ? hint : ''}
-            multiline={multiline}
-            onChangeText={onChangeTextCallback}
-            style={input}
-          />
-          {isPassword && (
-            <TouchableOpacity style={toggleButton} onPress={_toggleVisibility}>
-              {secureText && customShowPasswordComponent !== undefined ? (
-                customShowPasswordComponent
-              ) : !secureText && customHidePasswordComponent !== undefined ? (
-                customHidePasswordComponent
-              ) : (
-                <Image source={imgSource} resizeMode="contain" style={img} />
-              )}
-            </TouchableOpacity>
+          </AnimatedText>
+        )}
+        <View style={containerStyles}>
+          {leftComponent && leftComponent}
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            {!staticLabel && (
+              <AnimatedText
+                onPress={setFocus}
+                style={[
+                  style,
+                  {
+                    fontSize: fontSizeAnimated,
+                    transform: [
+                      { translateX: leftAnimated },
+                      { translateY: topAnimated },
+                    ],
+                  },
+                ]}
+              >
+                {label}
+              </AnimatedText>
+            )}
+            <TextInput
+              value={value}
+              onSubmitEditing={onSubmitEditing}
+              secureTextEntry={
+                isPassword !== undefined ? isPassword && secureText : false
+              }
+              onFocus={onFocus !== undefined ? onFocus : handleFocus}
+              onBlur={onBlur !== undefined ? onBlur : handleBlur}
+              ref={inputRef}
+              {...rest}
+              maxLength={
+                mask !== undefined
+                  ? mask.length
+                  : maxLength !== undefined
+                  ? maxLength
+                  : undefined
+              }
+              placeholderTextColor={hintTextColor}
+              placeholder={(staticLabel || isFocusedState) && hint ? hint : ''}
+              multiline={multiline}
+              onChangeText={onChangeTextCallback}
+              style={input}
+            />
+            {isPassword && (
+              <TouchableOpacity
+                style={toggleButton}
+                onPress={_toggleVisibility}
+              >
+                {secureText && customShowPasswordComponent !== undefined ? (
+                  customShowPasswordComponent
+                ) : !secureText && customHidePasswordComponent !== undefined ? (
+                  customHidePasswordComponent
+                ) : (
+                  <Image source={imgSource} resizeMode="contain" style={img} />
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+          {showCountdown && maxLength && (
+            <Text style={countdown}>
+              {maxLength - (value ? value.length : 0)} {countdownLabel}
+            </Text>
           )}
         </View>
-        {showCountdown && maxLength && (
-          <Text style={countdown}>
-            {maxLength - (value ? value.length : 0)} {countdownLabel}
-          </Text>
-        )}
       </View>
     </TouchableWithoutFeedback>
   );
 };
-export {setGlobalStyles};
+export { setGlobalStyles };
 export default forwardRef(FloatingLabelInput);

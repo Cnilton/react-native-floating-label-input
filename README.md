@@ -22,6 +22,13 @@ or
 yarn add react-native-floating-label-input
 ```
 
+# Version 1.3.0 🎉🎉
+
+- Animation added to font size on focus and on blur;
+- **new** animationDuration prop added;
+- staticLabel bug fixed when in multiline;
+- Smoother animations;
+
 ## New Features
 
 Mask has been updated, and some bugs should have been fixed. Features as **leftComponent**, **onTogglePassword**, **customShowPasswordComponent**, **customHidePasswordComponent**, **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:

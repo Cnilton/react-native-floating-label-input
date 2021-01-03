@@ -287,7 +287,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       inputRef.current.blur();
     },
   }));
-  let a = false;
 
   useEffect(() => {
     if (

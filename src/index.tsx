@@ -529,7 +529,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         let unmasked = val.replace(/[^0-9A-Za-z]/g, '');
 
         // pegar as posições dos caracteres especiais.
-        let positions = [];
+        let positions: number[] = [];
         for (let i = 0; i < mask.length; i++) {
           if (mask[i].match(/[^0-9A-Za-z]/)) {
             positions.push(i);

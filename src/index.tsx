@@ -418,11 +418,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     if (onTogglePassword) {
       onTogglePassword(!secureText);
     }
-    if (secureText) {
-      setSecureText(false);
-    } else {
-      setSecureText(true);
-    }
+
+    setSecureText(!secureText);
+    secureText && setFocus();
   }
 
   function onSubmitEditing() {

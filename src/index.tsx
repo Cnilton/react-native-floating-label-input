@@ -85,8 +85,12 @@ export interface Props extends TextInputProps {
   customHidePasswordComponent?: JSX.Element;
   /** Callback for show/hide password */
   onTogglePassword?: (show: boolean) => void;
+  /** Prop for force toggling show/hide password. If set to true, shows the password, and when set to false hides it. */
+  togglePassword?: boolean;
   /** Add left component to your input. Usually used for displaying icon */
   leftComponent?: JSX.Element;
+  /** Add right component to your input. Be aware if using the input as password this component is positioned before the show/hide component */
+  rightComponent?: JSX.Element;
   /** Set custom animation duration. Default 300 ms */
   animationDuration?: number;
 }
@@ -174,7 +178,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     onBlur,
     onFocus,
     onTogglePassword,
+    togglePassword,
     leftComponent,
+    rightComponent,
     customHidePasswordImage,
     customLabelStyles = {},
     staticLabel = false,
@@ -270,6 +276,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       }
     }
   }, [isFocused, value]);
+
+  useEffect(()=>{
+    if(togglePassword !== undefined){
+      _toggleVisibility(togglePassword)
+    }
+  },[togglePassword])
 
   useEffect(() => {
     if (isFocusedState) {
@@ -414,13 +426,26 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     inputRef.current?.focus();
   }
 
-  function _toggleVisibility() {
-    if (onTogglePassword) {
-      onTogglePassword(!secureText);
-    }
+  function setBlur() {
+    inputRef.current?.blur();
+  }
 
-    setSecureText(!secureText);
-    secureText && setFocus();
+  function _toggleVisibility(toggle?: boolean) {
+    if(toggle === undefined){
+      if (onTogglePassword) {
+        onTogglePassword(!secureText);
+      }
+      setSecureText(!secureText);
+      secureText ? setFocus() : setBlur();
+    }else{
+      if(!((secureText && !toggle) || (!secureText && toggle))){
+      if (onTogglePassword) {
+        onTogglePassword(!toggle);
+      }
+      setSecureText(!toggle);
+      toggle ? setFocus() : setBlur();
+    }
+  }
   }
 
   function onSubmitEditing() {
@@ -451,11 +476,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     color: !isFocusedState
       ? customLabelStyles.colorBlurred
       : customLabelStyles.colorFocused,
-    // backgroundColor: 'red',
     alignSelf: 'center',
     position: 'absolute',
     flex: 1,
-    // top:0,
     zIndex: 999,
   };
 
@@ -691,10 +714,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
               onChangeText={onChangeTextCallback}
               style={input}
             />
+            {rightComponent && rightComponent}
             {isPassword && (
               <TouchableOpacity
                 style={toggleButton}
-                onPress={_toggleVisibility}
+                onPress={() => _toggleVisibility()}
               >
                 {secureText && customShowPasswordComponent !== undefined ? (
                   customShowPasswordComponent

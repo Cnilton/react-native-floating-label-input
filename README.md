@@ -22,6 +22,91 @@ or
 yarn add react-native-floating-label-input
 ```
 
+# Version 1.3.2  **new props**
+
+- *rightComponent* prop added;
+- *togglePassword* prop added;
+
+### togglePassword : boolean
+
+- Prop for force toggling show/hide password. If set to true, shows the password, and when set to false hides it
+
+<img src ="https://i.imgur.com/kIfvKiD.gif" width="40%"/>
+
+```javascript
+
+import { StatusBar } from 'expo-status-bar';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {FloatingLabelInput} from 'react-native-floating-label-input';
+
+export default function App() {
+  const [cont, setCont] = useState('')
+  const [show, setShow] = useState(false)
+
+  useEffect(()=>{
+    const timeout = setTimeout(() => {
+      setShow(!show)
+    }, 5000);
+    return ()=> clearTimeout(timeout)
+  },[show])
+
+  return (
+    <View style={{padding: 50, flex: 1, backgroundColor: '#fff'}}>
+      <FloatingLabelInput
+        label={'label'}
+        isPassword
+        togglePassword={show}
+        value={cont}
+        onChangeText={(value) => setCont(value)}
+        customShowPasswordComponent={<Text>Show</Text>}
+        customHidePasswordComponent={<Text>Hide</Text>}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+```
+
+### rightComponent : JSX.Element
+
+- Add left component to your input. Be aware if using the input as password this component is positioned before the show/hide component
+
+<img src="https://i.imgur.com/LCa1BI9.png" width="40%">
+
+```javascript
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
+
+const app: React.FC = () => {
+  const [phone, setPhone] = useState('');
+
+  return (
+    <View style={{padding: 50, flex: 1, backgroundColor: '#fff'}}>
+      <FloatingLabelInput
+        label={'label'}
+        value={phone}
+        rightComponent={(
+          <TouchableOpacity style={{ alignContent:'center', justifyContent:'center'}} onPress={()=>{console.log('X clicked')}}><Text>X</Text></TouchableOpacity>
+        )}
+        onChangeText={(val) => setPhone(val)}
+      />
+    </View>
+  );
+};
+export default app;
+```
+
 # Version 1.3.0 🎉🎉
 
 - Animation added to font size on focus and on blur;
@@ -41,7 +126,7 @@ Mask has been updated, and some bugs should have been fixed. Features as **leftC
 
 ```javascript
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 
 const app: React.FC = () => {

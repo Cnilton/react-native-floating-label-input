@@ -456,11 +456,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   let imgSource = darkTheme
     ? secureText
-      ? customShowPasswordImage || makeInvisibleBlack
-      : customHidePasswordImage || makeVisibleBlack
+      ? customShowPasswordImage || makeVisibleBlack
+      : customHidePasswordImage || makeInvisibleBlack
     : secureText
-    ? customShowPasswordImage || makeInvisibleWhite
-    : customHidePasswordImage || makeVisibleWhite;
+    ? customShowPasswordImage || makeVisibleWhite
+    : customHidePasswordImage || makeInvisibleWhite;
 
   const style: TextStyle = {
     ...setGlobalStyles?.labelStyles,

@@ -285,7 +285,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   useEffect(() => {
     if (isFocusedState) {
-      animateFocus();
+      if(halfTop !== 0){
+        animateFocus();
+      }
     } else {
       animateBlur();
     }

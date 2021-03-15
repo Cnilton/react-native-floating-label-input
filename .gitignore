@@ -65,4 +65,4 @@ buck-out/
 /ios/Pods/
 
 # ignore test files
-/src/app.js
+/app.js

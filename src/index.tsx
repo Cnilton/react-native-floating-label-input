@@ -8,7 +8,6 @@ import React, {
 import {
   View,
   Animated as ReactAnimated,
-  // Easing,
   TextInput,
   Image,
   Text,
@@ -20,7 +19,7 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent,
 } from 'react-native';
-import Animated, { Easing, timing } from 'react-native-reanimated';
+import Animated, { EasingNode, timing } from 'react-native-reanimated';
 import { styles } from './styles';
 
 import makeVisibleWhite from './assets/make_visible_white.png';
@@ -200,7 +199,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     animationDuration,
     ...rest
   },
-  ref
+  ref,
 ) => {
   const [halfTop, setHalfTop] = useState(0);
   const [isFocusedState, setIsFocused] = useState(false);
@@ -224,8 +223,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           : 10
         : customLabelStyles.fontSizeBlurred
         ? customLabelStyles.fontSizeBlurred
-        : 14
-    )
+        : 14,
+    ),
   );
 
   const [leftAnimated] = useState(
@@ -237,8 +236,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         : customLabelStyles != undefined &&
           customLabelStyles.leftBlurred !== undefined
         ? customLabelStyles.leftBlurred
-        : 0
-    )
+        : 0,
+    ),
   );
 
   const [topAnimated] = useState(
@@ -249,8 +248,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           : 0
         : customLabelStyles.topBlurred
         ? customLabelStyles.topBlurred
-        : 0
-    )
+        : 0,
+    ),
   );
 
   useEffect(() => {
@@ -277,15 +276,15 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     }
   }, [isFocused, value]);
 
-  useEffect(()=>{
-    if(togglePassword !== undefined){
-      _toggleVisibility(togglePassword)
+  useEffect(() => {
+    if (togglePassword !== undefined) {
+      _toggleVisibility(togglePassword);
     }
-  },[togglePassword])
+  }, [togglePassword]);
 
   useEffect(() => {
     if (isFocusedState) {
-      if(halfTop !== 0){
+      if (halfTop !== 0) {
         animateFocus();
       }
     } else {
@@ -312,7 +311,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
           toValue: customLabelStyles.leftFocused
             ? customLabelStyles.leftFocused
             : 0,
@@ -323,7 +322,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.fontSizeFocused
             : 10,
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
         // @ts-ignore
         timing(topAnimated, {
@@ -338,7 +337,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 ? customLabelStyles.fontSizeBlurred
                 : 14),
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
       ]).start();
     }
@@ -350,7 +349,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
           toValue: customLabelStyles.leftFocused
             ? customLabelStyles.leftFocused
             : 0,
@@ -361,7 +360,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.fontSizeFocused
             : 10,
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
         // @ts-ignore
         timing(topAnimated, {
@@ -376,7 +375,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 ? customLabelStyles.fontSizeBlurred
                 : 14),
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
       ]).start();
     }
@@ -389,7 +388,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
           toValue: customLabelStyles.leftBlurred
             ? customLabelStyles.leftBlurred
             : 0,
@@ -400,7 +399,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.fontSizeBlurred
             : 14,
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
         // @ts-ignore
         timing(topAnimated, {
@@ -408,7 +407,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.topBlurred
             : 0,
           duration: animationDuration ? animationDuration : 300,
-          easing: Easing.linear,
+          easing: EasingNode.linear,
         }),
       ]).start();
     }
@@ -433,21 +432,21 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }
 
   function _toggleVisibility(toggle?: boolean) {
-    if(toggle === undefined){
+    if (toggle === undefined) {
       if (onTogglePassword) {
         onTogglePassword(!secureText);
       }
       setSecureText(!secureText);
       secureText ? setFocus() : setBlur();
-    }else{
-      if(!((secureText && !toggle) || (!secureText && toggle))){
-      if (onTogglePassword) {
-        onTogglePassword(!toggle);
+    } else {
+      if (!((secureText && !toggle) || (!secureText && toggle))) {
+        if (onTogglePassword) {
+          onTogglePassword(!toggle);
+        }
+        setSecureText(!toggle);
+        toggle ? setFocus() : setBlur();
       }
-      setSecureText(!toggle);
-      toggle ? setFocus() : setBlur();
     }
-  }
   }
 
   function onSubmitEditing() {
@@ -592,7 +591,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                   intVal
                     .split('')
                     .splice(intVal.length - i, 3)
-                    .join('')
+                    .join(''),
                 );
               }
 
@@ -629,7 +628,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 unmasked
                   .split('')
                   .splice(unmasked.length - i, 3)
-                  .join('')
+                  .join(''),
               );
             }
 
@@ -663,7 +662,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             style={[
               style,
               {
-                left: labelStyles?.left ? labelStyles?.left : customLabelStyles.leftFocused
+                left: labelStyles?.left
+                  ? labelStyles?.left
+                  : customLabelStyles.leftFocused
                   ? customLabelStyles.leftFocused
                   : 20,
                 top: -(style?.fontSize ? style?.fontSize : 10) / 2,
@@ -681,6 +682,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 onPress={setFocus}
                 style={[
                   style,
+                  // @ts-ignore
                   {
                     fontSize: fontSizeAnimated,
                     transform: [

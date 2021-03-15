@@ -39,7 +39,7 @@
     "react-native": "*"
   },
   "dependencies": {
-    "react-native-reanimated": "^1.13.2"
+    "react-native-reanimated": "^2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

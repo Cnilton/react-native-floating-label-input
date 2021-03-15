@@ -63,3 +63,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# ignore test files
+/src/app.js

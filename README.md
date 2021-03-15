@@ -22,9 +22,17 @@ or
 yarn add react-native-floating-label-input
 ```
 
+## ⚠ Important
+
+- If you are using version 1.3.5 see the instructions below.
+
 # Version 1.3.5 **react-native-reanimated v2**
 
-- All animations now are using react-native-reanimated v2, as it was officially released recently.
+- All animations now are using react-native-reanimated v2, as it was officially released recently. Please follow the Software Mansion guide installation for the react-native-reanimated v2: https://docs.swmansion.com/react-native-reanimated/docs/installation
+
+- OBS.: if during Software Mansion installation guide your project won't build or builds but crashes on start, try removing node_modules folder.
+
+- OBS. 2: if you don't want to use the new react-native-reanimated v2, **do not** upgrade to this version, install version 1.3.4.
 
 # Version 1.3.2  **new props**
 

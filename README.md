@@ -22,6 +22,10 @@ or
 yarn add react-native-floating-label-input
 ```
 
+# Version 1.3.5 **react-native-reanimated v2**
+
+- All animations now are using react-native-reanimated v2, as it was officially released recently.
+
 # Version 1.3.2  **new props**
 
 - *rightComponent* prop added;

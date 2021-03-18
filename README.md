@@ -24,7 +24,17 @@ yarn add react-native-floating-label-input
 
 ## ⚠ Important
 
-- If you are using version 1.3.5 see the instructions below.
+- If you are using version 1.3.5 see the instructions below. 
+- If not, just install:
+```bash
+npm i react-native-reanimated@1.13.2
+```
+
+or
+
+```bash
+yarn add react-native-reanimated@1.13.2
+```
 
 # Version 1.3.5 **react-native-reanimated v2**
 
@@ -32,7 +42,23 @@ yarn add react-native-floating-label-input
 
 - OBS.: if during Software Mansion installation guide your project won't build or builds but crashes on start, try removing node_modules folder.
 
-- OBS. 2: if you don't want to use the new react-native-reanimated v2, **do not** upgrade to this version, install version 1.3.4.
+- OBS. 2: if you don't want to use the new react-native-reanimated v2, **do not** upgrade to this version, install version 1.3.4 and react-native-reanimated@1.13.2
+
+# Version 1.3.4 **react-native-reanimated v1**
+
+- Last stable version of this lib with Software-Mansion react-native-reanimated v1.
+
+Just install by running:
+
+```bash
+npm i react-native-reanimated@1.13.2
+```
+
+or
+
+```bash
+yarn add react-native-reanimated@1.13.2
+```
 
 # Version 1.3.2  **new props**
 

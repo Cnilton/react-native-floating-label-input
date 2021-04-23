@@ -283,7 +283,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }, [togglePassword]);
 
   useEffect(() => {
-    if (isFocusedState) {
+    if (isFocusedState || value !== '') {
       if (halfTop !== 0) {
         animateFocus();
       }

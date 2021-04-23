@@ -24,7 +24,7 @@ yarn add react-native-floating-label-input
 
 ## ⚠ Important
 
-- If you are using version 1.3.5 see the instructions below. 
+- If you are using version 1.3.5 or higher, follow instructions below. 
 - If not, just install:
 ```bash
 npm i react-native-reanimated@1.13.2
@@ -36,7 +36,7 @@ or
 yarn add react-native-reanimated@1.13.2
 ```
 
-# Version 1.3.5 **react-native-reanimated v2**
+# Version 1.3.5 or higher **react-native-reanimated v2**
 
 - All animations now are using react-native-reanimated v2, as it was officially released recently. Please follow the Software Mansion guide installation for the react-native-reanimated v2: https://docs.swmansion.com/react-native-reanimated/docs/installation
 
@@ -145,17 +145,6 @@ const app: React.FC = () => {
 export default app;
 ```
 
-# Version 1.3.0 🎉🎉
-
-- Animation added to font size on focus and on blur;
-- **new** animationDuration prop added;
-- staticLabel bug fixed when in multiline;
-- Smoother animations;
-
-## New Features
-
-Mask has been updated, and some bugs should have been fixed. Features as **leftComponent**, **onTogglePassword**, **customShowPasswordComponent**, **customHidePasswordComponent**, **staticLabel**, **hint** and **hintTextColor** have been added! Checkout the usage:
-
 ### leftComponent : JSX.Element
 
 - Add left component to your input. Usually used for displaying icon
@@ -196,10 +185,6 @@ const app: React.FC = () => {
 };
 export default app;
 ```
-
-### onTogglePassword : (boolean) => void
-
-- Callback for show/hide password
 
 ### customShowPasswordComponent and customHidePasswordComponent : JSX.Element
 
@@ -248,7 +233,7 @@ export default app;
 
 - Set the color to the hint
 
-#### New props usage example
+#### Example
 
 <img src ="https://i.imgur.com/cgQsY20.gif" width="40%"/>
 

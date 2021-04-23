@@ -44,7 +44,7 @@ yarn add react-native-reanimated@1.13.2
 
 - OBS. 2: if you don't want to use the new react-native-reanimated v2, **do not** upgrade to this version, install version 1.3.4 and react-native-reanimated@1.13.2
 
-# Version 1.3.4 **react-native-reanimated v1**
+# Version 1.3.4 or lower **react-native-reanimated v1**
 
 - Last stable version of this lib with Software-Mansion react-native-reanimated v1.
 

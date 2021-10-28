@@ -19,7 +19,11 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent,
 } from 'react-native';
-import Animated, { EasingNode, timing, interpolateColors } from 'react-native-reanimated';
+import Animated, {
+  EasingNode,
+  timing,
+  interpolateColors,
+} from 'react-native-reanimated';
 import { styles } from './styles';
 
 import makeVisibleWhite from './assets/make_visible_white.png';
@@ -27,7 +31,7 @@ import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
 
-export interface Props extends TextInputProps {
+export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   /** Style to the container of whole component */
   containerStyles?: ViewStyle;
   /** Changes the color for hide/show password image */
@@ -170,7 +174,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     currencyDivider,
     maskType,
     onChangeText,
-    secureTextEntry,
     customHidePasswordComponent,
     customShowPasswordComponent,
     isFocused,
@@ -255,23 +258,23 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   );
 
   useEffect(() => {
-      if (isFocused === undefined) {
-        if (value !== '' || isFocusedState) {
-          setIsFocused(true);
-        } else if (value === '' || value === null) {
-          setIsFocused(false);
-        }
+    if (isFocused === undefined) {
+      if (value !== '' || isFocusedState) {
+        setIsFocused(true);
+      } else if (value === '' || value === null) {
+        setIsFocused(false);
       }
+    }
   }, [value]);
 
   useEffect(() => {
-      if (isFocused !== undefined) {
-        if (value !== '' || isFocused) {
-          setIsFocused(true);
-        } else {
-          setIsFocused(false);
-        }
+    if (isFocused !== undefined) {
+      if (value !== '' || isFocused) {
+        setIsFocused(true);
+      } else {
+        setIsFocused(false);
       }
+    }
   }, [isFocused, value]);
 
   useEffect(() => {
@@ -287,7 +290,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       }
     } else {
       animateBlur();
-  }
+    }
   }, [isFocusedState]);
 
   useImperativeHandle(ref, () => ({
@@ -298,7 +301,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       inputRef.current.blur();
     },
   }));
-  
+
   useEffect(() => {
     if (
       !staticLabel &&
@@ -343,13 +346,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else if(staticLabel &&
-      isFocusedState){
-        Animated.timing(fontColorAnimated, {
-          toValue: 1,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }).start();
+    } else if (staticLabel && isFocusedState) {
+      Animated.timing(fontColorAnimated, {
+        toValue: 1,
+        duration: animationDuration ? animationDuration : 300,
+        easing: EasingNode.linear,
+      }).start();
     }
   }, [halfTop]);
 
@@ -393,7 +395,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else{
+    } else {
       Animated.timing(fontColorAnimated, {
         toValue: 1,
         duration: animationDuration ? animationDuration : 300,
@@ -435,7 +437,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else{
+    } else {
       Animated.timing(fontColorAnimated, {
         toValue: 0,
         duration: animationDuration ? animationDuration : 300,
@@ -494,7 +496,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? customShowPasswordImage || makeVisibleWhite
     : customHidePasswordImage || makeInvisibleWhite;
 
-
   const style: TextStyle = {
     ...setGlobalStyles?.labelStyles,
     ...labelStyles,
@@ -508,7 +509,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       : customLabelStyles.fontSizeFocused,
     color: interpolateColors(fontColorAnimated, {
       inputRange: [0, 1],
-      outputColorRange: [customLabelStyles.colorBlurred,customLabelStyles.colorFocused]
+      outputColorRange: [
+        customLabelStyles.colorBlurred,
+        customLabelStyles.colorFocused,
+      ],
     }),
     alignSelf: 'center',
     position: 'absolute',

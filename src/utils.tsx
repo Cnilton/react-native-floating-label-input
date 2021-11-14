@@ -57,6 +57,36 @@ function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
     };
 }
 
+/** removes decimal dot and comma from a string */
+function removeDividerAndDecimal(value: string): string {
+  return value.replace(/[,.]/g, '');
+}
+
+function iDontYetKnowWhatsGoingOnHere(
+  value: string,
+  divider: CurrencyDivider,
+): string {
+  if (value.length > 3) {
+    let arr: string[] = [];
+    for (let i = 0; i < value.length; i += 3) {
+      arr.push(
+        value
+          .split('')
+          .splice(value.length - i, 3)
+          .join(''),
+      );
+    }
+
+    arr = arr.reverse();
+    arr.pop();
+    let initial = arr.join('');
+    if (value.includes(initial)) {
+      value = value.replace(initial, '');
+    }
+    return (value = value + divider + arr.join(divider));
+  } else return value;
+}
+
 export function getValueFromCurrencyMask({
   value,
   newValue,
@@ -68,29 +98,12 @@ export function getValueFromCurrencyMask({
   if (value.length >= newValue.length) return undefined;
 
   if (newValue.includes(decimal)) {
-    let intVal = newValue.split(decimal)[0].replace(/[,.]/g, '');
-    let decimalValue = newValue.split(decimal)[1];
-    if (intVal.length > 3) {
-      let arr: string[] = [];
-      for (let i = 0; i < intVal.length; i += 3) {
-        arr.push(
-          intVal
-            .split('')
-            .splice(intVal.length - i, 3)
-            .join(''),
-        );
-      }
+    let intVal = removeDividerAndDecimal(newValue.split(decimal)[0]);
+    let fractionalVal = newValue.split(decimal)[1];
 
-      arr = arr.reverse();
-      arr.pop();
-      let initial = arr.join('');
-      if (intVal.includes(initial)) {
-        intVal = intVal.replace(initial, '');
-      }
-      intVal = intVal + divider + arr.join(divider);
-    }
+    intVal = iDontYetKnowWhatsGoingOnHere(intVal, divider);
 
-    newValue = intVal + decimal + decimalValue;
+    newValue = intVal + decimal + fractionalVal;
 
     let decimalPlaces: number =
       maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
@@ -101,30 +114,16 @@ export function getValueFromCurrencyMask({
       newValue.split(decimal)[1].length > value.split(decimal)[1].length &&
       value.split(decimal)[1].length === decimalPlaces
     ) {
-      return '';
+      return undefined;
     }
     if (newValue.split(decimal)[1].length > decimalPlaces) {
       newValue = newValue.slice(0, newValue.length - 1);
     }
   } else if (newValue.length > 3) {
     let arr: string[] = [];
-    let unmasked = newValue.replace(/[,.]/g, '');
-    for (let i = 0; i < unmasked.length; i += 3) {
-      arr.push(
-        unmasked
-          .split('')
-          .splice(unmasked.length - i, 3)
-          .join(''),
-      );
-    }
+    let unmasked = removeDividerAndDecimal(newValue);
 
-    arr = arr.reverse();
-    arr.pop();
-    let initial = arr.join('');
-    if (unmasked.includes(initial)) {
-      unmasked = unmasked.replace(initial, '');
-    }
-    newValue = unmasked + divider + arr.join(divider);
+    newValue = iDontYetKnowWhatsGoingOnHere(unmasked, divider);
   }
   return newValue;
 }

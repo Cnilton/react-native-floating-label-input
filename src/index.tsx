@@ -19,13 +19,18 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent,
 } from 'react-native';
-import Animated, { EasingNode, timing, interpolateColors } from 'react-native-reanimated';
+import Animated, {
+  EasingNode,
+  timing,
+  interpolateColors,
+} from 'react-native-reanimated';
 import { styles } from './styles';
 
 import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
+import { getValueFromCurrencyMask, getValueFromNonCurrencyMask } from './utils';
 
 export interface Props extends TextInputProps {
   /** Style to the container of whole component */
@@ -255,23 +260,23 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   );
 
   useEffect(() => {
-      if (isFocused === undefined) {
-        if (value !== '' || isFocusedState) {
-          setIsFocused(true);
-        } else if (value === '' || value === null) {
-          setIsFocused(false);
-        }
+    if (isFocused === undefined) {
+      if (value !== '' || isFocusedState) {
+        setIsFocused(true);
+      } else if (value === '' || value === null) {
+        setIsFocused(false);
       }
+    }
   }, [value]);
 
   useEffect(() => {
-      if (isFocused !== undefined) {
-        if (value !== '' || isFocused) {
-          setIsFocused(true);
-        } else {
-          setIsFocused(false);
-        }
+    if (isFocused !== undefined) {
+      if (value !== '' || isFocused) {
+        setIsFocused(true);
+      } else {
+        setIsFocused(false);
       }
+    }
   }, [isFocused, value]);
 
   useEffect(() => {
@@ -287,7 +292,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       }
     } else {
       animateBlur();
-  }
+    }
   }, [isFocusedState]);
 
   useImperativeHandle(ref, () => ({
@@ -298,7 +303,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       inputRef.current.blur();
     },
   }));
-  
+
   useEffect(() => {
     if (
       !staticLabel &&
@@ -343,13 +348,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else if(staticLabel &&
-      isFocusedState){
-        Animated.timing(fontColorAnimated, {
-          toValue: 1,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }).start();
+    } else if (staticLabel && isFocusedState) {
+      Animated.timing(fontColorAnimated, {
+        toValue: 1,
+        duration: animationDuration ? animationDuration : 300,
+        easing: EasingNode.linear,
+      }).start();
     }
   }, [halfTop]);
 
@@ -393,7 +397,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else{
+    } else {
       Animated.timing(fontColorAnimated, {
         toValue: 1,
         duration: animationDuration ? animationDuration : 300,
@@ -435,7 +439,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           easing: EasingNode.linear,
         }),
       ]).start();
-    }else{
+    } else {
       Animated.timing(fontColorAnimated, {
         toValue: 0,
         duration: animationDuration ? animationDuration : 300,
@@ -494,7 +498,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? customShowPasswordImage || makeVisibleWhite
     : customHidePasswordImage || makeInvisibleWhite;
 
-
   const style: TextStyle = {
     ...setGlobalStyles?.labelStyles,
     ...labelStyles,
@@ -508,7 +511,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       : customLabelStyles.fontSizeFocused,
     color: interpolateColors(fontColorAnimated, {
       inputRange: [0, 1],
-      outputColorRange: [customLabelStyles.colorBlurred,customLabelStyles.colorFocused]
+      outputColorRange: [
+        customLabelStyles.colorBlurred,
+        customLabelStyles.colorFocused,
+      ],
     }),
     alignSelf: 'center',
     position: 'absolute',
@@ -577,108 +583,24 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...showCountdownStyles,
   };
 
-  function onChangeTextCallback(val: string) {
-    if (maskType !== undefined || mask !== undefined) {
-      if (maskType !== 'currency' && mask !== undefined) {
-        let unmasked = val.replace(/[^0-9A-Za-z]/g, '');
+  function onChangeTextCallback(val: string): void | undefined {
+    if (onChangeText === undefined) return undefined;
 
-        // pegar as posições dos caracteres especiais.
-        let positions: number[] = [];
-        for (let i = 0; i < mask.length; i++) {
-          if (mask[i].match(/[^0-9A-Za-z]/)) {
-            positions.push(i);
-          }
-        }
+    if (maskType === undefined && mask === undefined) return onChangeText(val);
 
-        let newValue = '';
-        let offset = 0;
-        for (let j = 0; j < unmasked.length; j++) {
-          // adicionar caracteres especiais
-          while (mask[j + offset]?.match(/[^0-9A-Za-z]/)) {
-            newValue += mask[j + offset];
-            offset++;
-          }
-          newValue += unmasked[j];
-        }
-
-        return onChangeText ? onChangeText(newValue) : false;
-      }
-      if (maskType === 'currency') {
-        let divider = '';
-        let decimal = '';
-        if (currencyDivider === ',') {
-          divider = ',';
-          decimal = '.';
-        } else {
-          divider = '.';
-          decimal = ',';
-        }
-        if (value !== undefined && value.length < val.length) {
-          if (val.includes(decimal)) {
-            let intVal = val.split(decimal)[0].replace(/[,.]/g, '');
-            let decimalValue = val.split(decimal)[1];
-            if (intVal.length > 3) {
-              let arr: string[] = [];
-              for (let i = 0; i < intVal.length; i += 3) {
-                arr.push(
-                  intVal
-                    .split('')
-                    .splice(intVal.length - i, 3)
-                    .join(''),
-                );
-              }
-
-              arr = arr.reverse();
-              arr.pop();
-              let initial = arr.join('');
-              if (intVal.includes(initial)) {
-                intVal = intVal.replace(initial, '');
-              }
-              intVal = intVal + divider + arr.join(divider);
-            }
-
-            val = intVal + decimal + decimalValue;
-
-            let decimalPlaces: number =
-              maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
-
-            if (
-              val.split(decimal)[1] !== undefined &&
-              value.split(decimal)[1] !== undefined &&
-              val.split(decimal)[1].length > value.split(decimal)[1].length &&
-              value.split(decimal)[1].length === decimalPlaces
-            ) {
-              return;
-            }
-            if (val.split(decimal)[1].length > decimalPlaces) {
-              val = val.slice(0, val.length - 1);
-            }
-          } else if (val.length > 3) {
-            let arr: string[] = [];
-            let unmasked = val.replace(/[,.]/g, '');
-            for (let i = 0; i < unmasked.length; i += 3) {
-              arr.push(
-                unmasked
-                  .split('')
-                  .splice(unmasked.length - i, 3)
-                  .join(''),
-              );
-            }
-
-            arr = arr.reverse();
-            arr.pop();
-            let initial = arr.join('');
-            if (unmasked.includes(initial)) {
-              unmasked = unmasked.replace(initial, '');
-            }
-            val = unmasked + divider + arr.join(divider);
-          }
-        }
-        return onChangeText ? onChangeText(val) : false;
-      }
-      return onChangeText ? onChangeText(val) : false;
+    if (maskType !== 'currency' && mask !== undefined) {
+      const newValue = getValueFromNonCurrencyMask({ value: val, mask });
+      return onChangeText(newValue);
     }
-    return onChangeText ? onChangeText(val) : false;
+
+    if (maskType === 'currency') {
+      const newValue = getValueFromCurrencyMask({
+        value: val,
+        currencyDivider,
+        maxDecimalPlaces,
+      });
+      return onChangeText(newValue);
+    }
   }
 
   function onLayout(event: LayoutChangeEvent) {

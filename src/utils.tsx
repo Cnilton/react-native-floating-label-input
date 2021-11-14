@@ -14,10 +14,12 @@ type NonCurrencyMaskTypeArgs = {
   mask: Mask;
 };
 
+type ResultType = string | undefined;
+
 export function getValueFromNonCurrencyMask({
   value,
   mask,
-}: NonCurrencyMaskTypeArgs): string {
+}: NonCurrencyMaskTypeArgs): ResultType {
   let unmasked = value.replace(/[^0-9A-Za-z]/g, '');
 
   // mark positions of special characters
@@ -42,69 +44,39 @@ export function getValueFromNonCurrencyMask({
   return newValue;
 }
 
+function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
+  if (divider === ',') {
+    return {
+      divider: ',' as const,
+      decimal: '.' as const,
+    };
+  } else
+    return {
+      divider: '.' as const,
+      decimal: ',' as const,
+    };
+}
+
 export function getValueFromCurrencyMask({
   value,
   newValue,
   currencyDivider,
   maxDecimalPlaces,
-}: CurrencyMaskTypeArgs): string {
-  let divider = '';
-  let decimal = '';
-  if (currencyDivider === ',') {
-    divider = ',';
-    decimal = '.';
-  } else {
-    divider = '.';
-    decimal = ',';
-  }
-  if (value !== undefined && value.length < newValue.length) {
-    if (newValue.includes(decimal)) {
-      let intVal = newValue.split(decimal)[0].replace(/[,.]/g, '');
-      let decimalValue = newValue.split(decimal)[1];
-      if (intVal.length > 3) {
-        let arr: string[] = [];
-        for (let i = 0; i < intVal.length; i += 3) {
-          arr.push(
-            intVal
-              .split('')
-              .splice(intVal.length - i, 3)
-              .join(''),
-          );
-        }
+}: CurrencyMaskTypeArgs): ResultType {
+  const { divider, decimal } = getCurrencyDividerAndDecimal(currencyDivider);
 
-        arr = arr.reverse();
-        arr.pop();
-        let initial = arr.join('');
-        if (intVal.includes(initial)) {
-          intVal = intVal.replace(initial, '');
-        }
-        intVal = intVal + divider + arr.join(divider);
-      }
+  if (value.length >= newValue.length) return undefined;
 
-      newValue = intVal + decimal + decimalValue;
-
-      let decimalPlaces: number =
-        maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
-
-      if (
-        newValue.split(decimal)[1] !== undefined &&
-        value.split(decimal)[1] !== undefined &&
-        newValue.split(decimal)[1].length > value.split(decimal)[1].length &&
-        value.split(decimal)[1].length === decimalPlaces
-      ) {
-        return '';
-      }
-      if (newValue.split(decimal)[1].length > decimalPlaces) {
-        newValue = newValue.slice(0, newValue.length - 1);
-      }
-    } else if (newValue.length > 3) {
+  if (newValue.includes(decimal)) {
+    let intVal = newValue.split(decimal)[0].replace(/[,.]/g, '');
+    let decimalValue = newValue.split(decimal)[1];
+    if (intVal.length > 3) {
       let arr: string[] = [];
-      let unmasked = newValue.replace(/[,.]/g, '');
-      for (let i = 0; i < unmasked.length; i += 3) {
+      for (let i = 0; i < intVal.length; i += 3) {
         arr.push(
-          unmasked
+          intVal
             .split('')
-            .splice(unmasked.length - i, 3)
+            .splice(intVal.length - i, 3)
             .join(''),
         );
       }
@@ -112,11 +84,47 @@ export function getValueFromCurrencyMask({
       arr = arr.reverse();
       arr.pop();
       let initial = arr.join('');
-      if (unmasked.includes(initial)) {
-        unmasked = unmasked.replace(initial, '');
+      if (intVal.includes(initial)) {
+        intVal = intVal.replace(initial, '');
       }
-      newValue = unmasked + divider + arr.join(divider);
+      intVal = intVal + divider + arr.join(divider);
     }
+
+    newValue = intVal + decimal + decimalValue;
+
+    let decimalPlaces: number =
+      maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
+
+    if (
+      newValue.split(decimal)[1] !== undefined &&
+      value.split(decimal)[1] !== undefined &&
+      newValue.split(decimal)[1].length > value.split(decimal)[1].length &&
+      value.split(decimal)[1].length === decimalPlaces
+    ) {
+      return '';
+    }
+    if (newValue.split(decimal)[1].length > decimalPlaces) {
+      newValue = newValue.slice(0, newValue.length - 1);
+    }
+  } else if (newValue.length > 3) {
+    let arr: string[] = [];
+    let unmasked = newValue.replace(/[,.]/g, '');
+    for (let i = 0; i < unmasked.length; i += 3) {
+      arr.push(
+        unmasked
+          .split('')
+          .splice(unmasked.length - i, 3)
+          .join(''),
+      );
+    }
+
+    arr = arr.reverse();
+    arr.pop();
+    let initial = arr.join('');
+    if (unmasked.includes(initial)) {
+      unmasked = unmasked.replace(initial, '');
+    }
+    newValue = unmasked + divider + arr.join(divider);
   }
   return newValue;
 }

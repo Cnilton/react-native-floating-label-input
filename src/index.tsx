@@ -588,19 +588,22 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
     if (maskType === undefined && mask === undefined) return onChangeText(val);
 
+    let newValue: string | undefined;
+
     if (maskType !== 'currency' && mask !== undefined) {
-      const newValue = getValueFromNonCurrencyMask({ value: val, mask });
-      return onChangeText(newValue);
+      newValue = getValueFromNonCurrencyMask({ value: val, mask });
     }
 
     if (maskType === 'currency') {
-      const newValue = getValueFromCurrencyMask({
-        value: val,
+      newValue = getValueFromCurrencyMask({
+        value,
+        newValue: val,
         currencyDivider,
         maxDecimalPlaces,
       });
-      return onChangeText(newValue);
     }
+
+    if (newValue !== undefined) return onChangeText(newValue);
   }
 
   function onLayout(event: LayoutChangeEvent) {

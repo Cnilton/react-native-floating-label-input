@@ -15,7 +15,7 @@ type NonCurrencyMaskTypeArgs = {
 
 type ResultType = string | undefined;
 
-export function getValueFromNonCurrencyMask({
+export function getValueWithNonCurrencyMask({
   value,
   mask,
 }: NonCurrencyMaskTypeArgs): ResultType {
@@ -67,7 +67,7 @@ function convertToNumber(
   );
 }
 
-export function getValueFromCurrencyMask({
+export function getValueWithCurrencyMask({
   value,
   newValue,
   currencyDivider,

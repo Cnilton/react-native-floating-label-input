@@ -19,10 +19,10 @@ export function getValueWithNonCurrencyMask({
   value,
   mask,
 }: NonCurrencyMaskTypeArgs): ResultType {
-  let unmasked = value.replace(/[^0-9A-Za-z]/g, '');
+  const unmasked = value.replace(/[^0-9A-Za-z]/g, '');
 
   // mark positions of special characters
-  let positions: number[] = [];
+  const positions: number[] = [];
   for (let i = 0; i < mask.length; i++) {
     if (mask[i].match(/[^0-9A-Za-z]/)) {
       positions.push(i);
@@ -79,7 +79,7 @@ export function getValueWithCurrencyMask({
 
   const newValueAsNumber = convertToNumber(newValue, divider, decimal);
 
-  let decimalPlaces: number =
+  const decimalPlaces: number =
     maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
 
   if (divider === ',') {

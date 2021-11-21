@@ -30,7 +30,7 @@ import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
-import { getValueFromCurrencyMask, getValueFromNonCurrencyMask } from './utils';
+import { getValueWithCurrencyMask, getValueWithNonCurrencyMask } from './utils';
 
 export interface Props extends TextInputProps {
   /** Style to the container of whole component */
@@ -50,7 +50,7 @@ export interface Props extends TextInputProps {
   /** Set this to true if is password to have a show/hide input and secureTextEntry automatically */
   isPassword?: true | false;
   /** Callback for action submit on the keyboard */
-  onSubmit?: Function;
+  onSubmit?: () => void;
   /** Style to the show/hide password container */
   showPasswordContainerStyles?: ViewStyle;
   /** Style to the show/hide password image */
@@ -175,7 +175,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     currencyDivider,
     maskType,
     onChangeText,
-    secureTextEntry,
     customHidePasswordComponent,
     customShowPasswordComponent,
     isFocused,
@@ -190,8 +189,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     staticLabel = false,
     hint,
     hintTextColor,
-    placeholder,
-    placeholderTextColor,
     onSubmit,
     containerStyles,
     customShowPasswordImage,
@@ -200,10 +197,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     multiline,
     showPasswordImageStyles,
     value = '',
-    onSelectionChange,
     animationDuration,
     ...rest
-  },
+  }: Props,
   ref,
 ) => {
   const [halfTop, setHalfTop] = useState(0);
@@ -311,7 +307,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       isFocusedState
     ) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -319,7 +314,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftFocused
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeFocused
             ? customLabelStyles.fontSizeFocused
@@ -327,7 +321,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
@@ -360,7 +353,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   function animateFocus() {
     if (!staticLabel) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -368,7 +360,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftFocused
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeFocused
             ? customLabelStyles.fontSizeFocused
@@ -376,7 +367,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
@@ -409,7 +399,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   function animateBlur() {
     if (!staticLabel) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -417,7 +406,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftBlurred
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeBlurred
             ? customLabelStyles.fontSizeBlurred
@@ -425,7 +413,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
@@ -490,7 +477,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     }
   }
 
-  let imgSource = darkTheme
+  const imgSource = darkTheme
     ? secureText
       ? customShowPasswordImage || makeVisibleBlack
       : customHidePasswordImage || makeInvisibleBlack
@@ -591,11 +578,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     let newValue: string | undefined;
 
     if (maskType !== 'currency' && mask !== undefined) {
-      newValue = getValueFromNonCurrencyMask({ value: val, mask });
+      newValue = getValueWithNonCurrencyMask({ value: val, mask });
     }
 
     if (maskType === 'currency') {
-      newValue = getValueFromCurrencyMask({
+      newValue = getValueWithCurrencyMask({
         value,
         newValue: val,
         currencyDivider,
@@ -607,7 +594,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   }
 
   function onLayout(event: LayoutChangeEvent) {
-    let { height } = event.nativeEvent.layout;
+    const { height } = event.nativeEvent.layout;
     setHalfTop(height / 2);
   }
 

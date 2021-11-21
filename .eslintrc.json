@@ -5,7 +5,6 @@
   },
   "extends": [
     "plugin:react/recommended",
-    "airbnb",
     "plugin:@typescript-eslint/recommended"
   ],
   "globals": {
@@ -21,11 +20,11 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": ["react", "react-hooks", "@typescript-eslint"],
+  "plugins": ["react", "react-hooks", "@typescript-eslint", "import"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "react/jsx-filename-extension": [1, {"extensions": [".tsx"]}],
+    "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
     "import/prefer-default-export": "off",
     "import/extensions": [
       "error",
@@ -38,7 +37,9 @@
   },
   "settings": {
     "import/resolver": {
-      "typescript": {}
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
     }
   }
 }

@@ -57,33 +57,8 @@ function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
     };
 }
 
-function removeAllDotsAndCommas(value: string): string {
-  return value.replace(/[,.]/g, '');
-}
-
-function iDontYetKnowWhatsGoingOnHere(
-  value: string,
-  divider: CurrencyDivider,
-): string {
-  if (value.length > 3) {
-    let arr: string[] = [];
-    for (let i = 0; i < value.length; i += 3) {
-      arr.push(
-        value
-          .split('')
-          .splice(value.length - i, 3)
-          .join(''),
-      );
-    }
-
-    arr = arr.reverse();
-    arr.pop();
-    let initial = arr.join('');
-    if (value.includes(initial)) {
-      value = value.replace(initial, '');
-    }
-    return (value = value + divider + arr.join(divider));
-  } else return value;
+function convertToNumber(value: string, divider: CurrencyDivider): number {
+  return Number(value.replace(`/${divider}/g`, ''));
 }
 
 export function getValueFromCurrencyMask({
@@ -96,33 +71,19 @@ export function getValueFromCurrencyMask({
 
   if (value.length >= newValue.length) return undefined;
 
-  if (newValue.includes(decimal)) {
-    let intVal = removeAllDotsAndCommas(newValue.split(decimal)[0]);
-    let fractionalVal = newValue.split(decimal)[1];
+  const newValueAsNumber = convertToNumber(newValue, divider);
+  let decimalPlaces: number =
+    maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
 
-    intVal = iDontYetKnowWhatsGoingOnHere(intVal, divider);
-
-    newValue = intVal + decimal + fractionalVal;
-
-    let decimalPlaces: number =
-      maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
-
-    if (
-      newValue.split(decimal)[1] !== undefined &&
-      value.split(decimal)[1] !== undefined &&
-      newValue.split(decimal)[1].length > value.split(decimal)[1].length &&
-      value.split(decimal)[1].length === decimalPlaces
-    ) {
-      return undefined;
-    }
-    if (newValue.split(decimal)[1].length > decimalPlaces) {
-      newValue = newValue.slice(0, newValue.length - 1);
-    }
-  } else if (newValue.length > 3) {
-    let arr: string[] = [];
-    let unmasked = removeAllDotsAndCommas(newValue);
-
-    newValue = iDontYetKnowWhatsGoingOnHere(unmasked, divider);
+  if (divider === ',') {
+    // en-US format: 123,456.00
+    return newValueAsNumber.toLocaleString('en-US', {
+      maximumFractionDigits: decimalPlaces,
+    });
+  } else {
+    // de-DE German uses comma as decimal separator and period for thousands
+    return newValueAsNumber.toLocaleString('de-DE', {
+      maximumFractionDigits: decimalPlaces,
+    });
   }
-  return newValue;
 }

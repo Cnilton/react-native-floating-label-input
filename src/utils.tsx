@@ -83,12 +83,12 @@ export function getValueFromCurrencyMask({
     maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
 
   if (divider === ',') {
-    // en-US format: 123,456.00
+    // en-US uses dot as decimal separator and comma for thousands
     return newValueAsNumber.toLocaleString('en-US', {
       maximumFractionDigits: decimalPlaces,
     });
   } else {
-    // de-DE German uses comma as decimal separator and period for thousands
+    // German uses comma as decimal separator and period for thousands
     return newValueAsNumber.toLocaleString('de-DE', {
       maximumFractionDigits: decimalPlaces,
     });

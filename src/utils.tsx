@@ -57,8 +57,7 @@ function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
     };
 }
 
-/** removes decimal dot and comma from a string */
-function removeDividerAndDecimal(value: string): string {
+function removeAllDotsAndCommas(value: string): string {
   return value.replace(/[,.]/g, '');
 }
 
@@ -98,7 +97,7 @@ export function getValueFromCurrencyMask({
   if (value.length >= newValue.length) return undefined;
 
   if (newValue.includes(decimal)) {
-    let intVal = removeDividerAndDecimal(newValue.split(decimal)[0]);
+    let intVal = removeAllDotsAndCommas(newValue.split(decimal)[0]);
     let fractionalVal = newValue.split(decimal)[1];
 
     intVal = iDontYetKnowWhatsGoingOnHere(intVal, divider);
@@ -121,7 +120,7 @@ export function getValueFromCurrencyMask({
     }
   } else if (newValue.length > 3) {
     let arr: string[] = [];
-    let unmasked = removeDividerAndDecimal(newValue);
+    let unmasked = removeAllDotsAndCommas(newValue);
 
     newValue = iDontYetKnowWhatsGoingOnHere(unmasked, divider);
   }

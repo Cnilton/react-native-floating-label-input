@@ -1,4 +1,3 @@
-type MaskType = 'currency' | 'phone' | 'date' | 'card';
 type Mask = string;
 type CurrencyDivider = ',' | '.';
 
@@ -57,8 +56,15 @@ function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
     };
 }
 
-function convertToNumber(value: string, divider: CurrencyDivider): number {
-  return Number(value.replace(`/${divider}/g`, ''));
+function convertToNumber(
+  value: string,
+  divider: CurrencyDivider,
+  decimal: CurrencyDivider,
+): number {
+  // Replace decimal with a dot to allow parsing with Number default constructor
+  return Number(
+    value.replace(`/${divider}/g`, '').replace(`/${decimal}/`, '.'),
+  );
 }
 
 export function getValueFromCurrencyMask({
@@ -71,7 +77,8 @@ export function getValueFromCurrencyMask({
 
   if (value.length >= newValue.length) return undefined;
 
-  const newValueAsNumber = convertToNumber(newValue, divider);
+  const newValueAsNumber = convertToNumber(newValue, divider, decimal);
+
   let decimalPlaces: number =
     maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
 

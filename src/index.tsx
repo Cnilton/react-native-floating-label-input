@@ -26,9 +26,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { styles } from './styles';
 
+// @ts-ignore
 import makeVisibleWhite from './assets/make_visible_white.png';
+// @ts-ignore
 import makeInvisibleWhite from './assets/make_invisible_white.png';
+// @ts-ignore
 import makeVisibleBlack from './assets/make_visible_black.png';
+// @ts-ignore
 import makeInvisibleBlack from './assets/make_invisible_black.png';
 
 export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
@@ -340,6 +344,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
+        // @ts-ignore
         timing(fontColorAnimated, {
           toValue: 1,
           duration: animationDuration ? animationDuration : 300,
@@ -389,6 +394,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
+        // @ts-ignore
         timing(fontColorAnimated, {
           toValue: 1,
           duration: animationDuration ? animationDuration : 300,
@@ -431,6 +437,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
+        // @ts-ignore
         timing(fontColorAnimated, {
           toValue: 0,
           duration: animationDuration ? animationDuration : 300,
@@ -507,10 +514,13 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       : !isFocusedState
       ? customLabelStyles.fontSizeBlurred
       : customLabelStyles.fontSizeFocused,
+    // @ts-ignore
     color: interpolateColors(fontColorAnimated, {
       inputRange: [0, 1],
       outputColorRange: [
+        // @ts-ignore
         customLabelStyles.colorBlurred,
+        // @ts-ignore
         customLabelStyles.colorFocused,
       ],
     }),

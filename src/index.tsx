@@ -30,6 +30,7 @@ import makeVisibleWhite from './assets/make_visible_white.png';
 import makeInvisibleWhite from './assets/make_invisible_white.png';
 import makeVisibleBlack from './assets/make_visible_black.png';
 import makeInvisibleBlack from './assets/make_invisible_black.png';
+import { getValueWithCurrencyMask, getValueWithNonCurrencyMask } from './utils';
 
 export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   /** Style to the container of whole component */
@@ -49,7 +50,7 @@ export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   /** Set this to true if is password to have a show/hide input and secureTextEntry automatically */
   isPassword?: true | false;
   /** Callback for action submit on the keyboard */
-  onSubmit?: Function;
+  onSubmit?: () => void;
   /** Style to the show/hide password container */
   showPasswordContainerStyles?: ViewStyle;
   /** Style to the show/hide password image */
@@ -188,8 +189,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     staticLabel = false,
     hint,
     hintTextColor,
-    placeholder,
-    placeholderTextColor,
     onSubmit,
     containerStyles,
     customShowPasswordImage,
@@ -198,10 +197,9 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     multiline,
     showPasswordImageStyles,
     value = '',
-    onSelectionChange,
     animationDuration,
     ...rest
-  },
+  }: Props,
   ref,
 ) => {
   const [halfTop, setHalfTop] = useState(0);
@@ -309,7 +307,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       isFocusedState
     ) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -317,7 +314,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftFocused
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeFocused
             ? customLabelStyles.fontSizeFocused
@@ -325,7 +321,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
@@ -358,7 +353,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   function animateFocus() {
     if (!staticLabel) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -366,7 +360,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftFocused
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeFocused
             ? customLabelStyles.fontSizeFocused
@@ -374,7 +367,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
@@ -407,7 +399,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   function animateBlur() {
     if (!staticLabel) {
       ReactAnimated.parallel([
-        // @ts-ignore
         timing(leftAnimated, {
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
@@ -415,7 +406,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             ? customLabelStyles.leftBlurred
             : 0,
         }),
-        // @ts-ignore
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeBlurred
             ? customLabelStyles.fontSizeBlurred
@@ -423,7 +413,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           duration: animationDuration ? animationDuration : 300,
           easing: EasingNode.linear,
         }),
-        // @ts-ignore
         timing(topAnimated, {
           toValue: customLabelStyles.topBlurred
             ? customLabelStyles.topBlurred
@@ -488,7 +477,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     }
   }
 
-  let imgSource = darkTheme
+  const imgSource = darkTheme
     ? secureText
       ? customShowPasswordImage || makeVisibleBlack
       : customHidePasswordImage || makeInvisibleBlack
@@ -581,112 +570,31 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ...showCountdownStyles,
   };
 
-  function onChangeTextCallback(val: string) {
-    if (maskType !== undefined || mask !== undefined) {
-      if (maskType !== 'currency' && mask !== undefined) {
-        let unmasked = val.replace(/[^0-9A-Za-z]/g, '');
+  function onChangeTextCallback(val: string): void | undefined {
+    if (onChangeText === undefined) return undefined;
 
-        // pegar as posições dos caracteres especiais.
-        let positions: number[] = [];
-        for (let i = 0; i < mask.length; i++) {
-          if (mask[i].match(/[^0-9A-Za-z]/)) {
-            positions.push(i);
-          }
-        }
+    if (maskType === undefined && mask === undefined) return onChangeText(val);
 
-        let newValue = '';
-        let offset = 0;
-        for (let j = 0; j < unmasked.length; j++) {
-          // adicionar caracteres especiais
-          while (mask[j + offset]?.match(/[^0-9A-Za-z]/)) {
-            newValue += mask[j + offset];
-            offset++;
-          }
-          newValue += unmasked[j];
-        }
+    let newValue: string | undefined;
 
-        return onChangeText ? onChangeText(newValue) : false;
-      }
-      if (maskType === 'currency') {
-        let divider = '';
-        let decimal = '';
-        if (currencyDivider === ',') {
-          divider = ',';
-          decimal = '.';
-        } else {
-          divider = '.';
-          decimal = ',';
-        }
-        if (value !== undefined && value.length < val.length) {
-          if (val.includes(decimal)) {
-            let intVal = val.split(decimal)[0].replace(/[,.]/g, '');
-            let decimalValue = val.split(decimal)[1];
-            if (intVal.length > 3) {
-              let arr: string[] = [];
-              for (let i = 0; i < intVal.length; i += 3) {
-                arr.push(
-                  intVal
-                    .split('')
-                    .splice(intVal.length - i, 3)
-                    .join(''),
-                );
-              }
-
-              arr = arr.reverse();
-              arr.pop();
-              let initial = arr.join('');
-              if (intVal.includes(initial)) {
-                intVal = intVal.replace(initial, '');
-              }
-              intVal = intVal + divider + arr.join(divider);
-            }
-
-            val = intVal + decimal + decimalValue;
-
-            let decimalPlaces: number =
-              maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
-
-            if (
-              val.split(decimal)[1] !== undefined &&
-              value.split(decimal)[1] !== undefined &&
-              val.split(decimal)[1].length > value.split(decimal)[1].length &&
-              value.split(decimal)[1].length === decimalPlaces
-            ) {
-              return;
-            }
-            if (val.split(decimal)[1].length > decimalPlaces) {
-              val = val.slice(0, val.length - 1);
-            }
-          } else if (val.length > 3) {
-            let arr: string[] = [];
-            let unmasked = val.replace(/[,.]/g, '');
-            for (let i = 0; i < unmasked.length; i += 3) {
-              arr.push(
-                unmasked
-                  .split('')
-                  .splice(unmasked.length - i, 3)
-                  .join(''),
-              );
-            }
-
-            arr = arr.reverse();
-            arr.pop();
-            let initial = arr.join('');
-            if (unmasked.includes(initial)) {
-              unmasked = unmasked.replace(initial, '');
-            }
-            val = unmasked + divider + arr.join(divider);
-          }
-        }
-        return onChangeText ? onChangeText(val) : false;
-      }
-      return onChangeText ? onChangeText(val) : false;
+    if (maskType !== 'currency' && mask !== undefined) {
+      newValue = getValueWithNonCurrencyMask({ value: val, mask });
     }
-    return onChangeText ? onChangeText(val) : false;
+
+    if (maskType === 'currency') {
+      newValue = getValueWithCurrencyMask({
+        value,
+        newValue: val,
+        currencyDivider,
+        maxDecimalPlaces,
+      });
+    }
+
+    if (newValue !== undefined) return onChangeText(newValue);
   }
 
   function onLayout(event: LayoutChangeEvent) {
-    let { height } = event.nativeEvent.layout;
+    const { height } = event.nativeEvent.layout;
     setHalfTop(height / 2);
   }
 

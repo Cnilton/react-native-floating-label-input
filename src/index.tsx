@@ -12,6 +12,7 @@ import {
   Image,
   Text,
   TouchableOpacity,
+  TextProps,
   TextInputProps,
   TextStyle,
   ViewStyle,
@@ -101,6 +102,8 @@ export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   rightComponent?: JSX.Element;
   /** Set custom animation duration. Default 300 ms */
   animationDuration?: number;
+  /** Label Props */
+  labelProps: TextProps;
 }
 
 export interface SetGlobalStyles {
@@ -167,6 +170,7 @@ const AnimatedText = Animated.createAnimatedComponent(Text);
 const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   {
     label,
+    labelProps,
     mask,
     isPassword,
     maxLength,
@@ -204,7 +208,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     animationDuration,
     ...rest
   }: Props,
-  ref,
+  ref: any,
 ) => {
   const [halfTop, setHalfTop] = useState(0);
   const [isFocusedState, setIsFocused] = useState(false);
@@ -293,7 +297,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     } else {
       animateBlur();
     }
-  }, [isFocusedState]);
+  }, [isFocusedState, halfTop]);
 
   useImperativeHandle(ref, () => ({
     focus() {
@@ -613,6 +617,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       <View style={{ flexDirection: 'row' }}>
         {staticLabel && (
           <AnimatedText
+            {...labelProps}
             onPress={setFocus}
             style={[
               style,
@@ -634,6 +639,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           <View style={{ flex: 1, flexDirection: 'row' }}>
             {!staticLabel && (
               <AnimatedText
+                {...labelProps}
                 onPress={setFocus}
                 style={[
                   style,

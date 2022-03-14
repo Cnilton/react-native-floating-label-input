@@ -103,7 +103,7 @@ export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   /** Set custom animation duration. Default 300 ms */
   animationDuration?: number;
   /** Label Props */
-  labelProps: TextProps;
+  labelProps?: TextProps;
 }
 
 export interface SetGlobalStyles {

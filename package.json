@@ -42,11 +42,11 @@
     "react-native-reanimated": "*"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.16.7",
     "@babel/core": "^7.6.2",
+    "@babel/preset-typescript": "^7.16.7",
     "@babel/runtime": "^7.6.2",
     "@react-native-community/eslint-config": "^1.0.0",
-    "@types/jest": "^24.0.24",
+    "@types/jest": "^27.4.1",
     "@types/react-native": "^0.62.0",
     "@types/react-test-renderer": "16.9.2",
     "@typescript-eslint/eslint-plugin": "^3.6.1",

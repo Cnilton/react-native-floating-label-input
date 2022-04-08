@@ -56,41 +56,46 @@ function getCurrencyDividerAndDecimal(divider: CurrencyDivider | undefined) {
     };
 }
 
-function convertToNumber(
-  value: string,
-  divider: CurrencyDivider,
-  decimal: CurrencyDivider,
-): number {
-  // Replace decimal with a dot to allow parsing with Number default constructor
-  return Number(
-    value.replace(`/${divider}/g`, '').replace(`/${decimal}/`, '.'),
-  );
-}
-
 export function getValueWithCurrencyMask({
   value,
   newValue,
   currencyDivider,
-  maxDecimalPlaces,
 }: CurrencyMaskTypeArgs): ResultType {
   const { divider, decimal } = getCurrencyDividerAndDecimal(currencyDivider);
 
-  if (value.length >= newValue.length) return undefined;
+  if (value !== undefined) {
+    if (!newValue.includes(decimal)) {
+      if (newValue?.replace(/[,.]/g, '')?.length > 3) {
+        let arr: string[] = [];
+        let unmasked = newValue.replace(/[,.]/g, '');
+        for (let i = 0; i < unmasked.length; i += 3) {
+          arr.push(
+            unmasked
+              .split('')
+              .splice(unmasked.length - i, 3)
+              .join(''),
+          );
+        }
 
-  const newValueAsNumber = convertToNumber(newValue, divider, decimal);
-
-  const decimalPlaces: number =
-    maxDecimalPlaces !== undefined ? maxDecimalPlaces : 2;
-
-  if (divider === ',') {
-    // en-US uses dot as decimal separator and comma for thousands
-    return newValueAsNumber.toLocaleString('en-US', {
-      maximumFractionDigits: decimalPlaces,
-    });
-  } else {
-    // German uses comma as decimal separator and period for thousands
-    return newValueAsNumber.toLocaleString('de-DE', {
-      maximumFractionDigits: decimalPlaces,
-    });
+        arr = arr.reverse();
+        arr.pop();
+        const initial = arr.join('');
+        if (unmasked.includes(initial)) {
+          unmasked = unmasked.replace(initial, '');
+        }
+        newValue = unmasked + divider + arr.join(divider);
+      } else {
+        newValue = newValue?.replace(/[,.]/g, '');
+      }
+    } else {
+      if (
+        newValue?.split(decimal).length > 2 ||
+        newValue?.split(decimal)[1].includes(divider)
+      ) {
+        return value;
+      }
+    }
   }
+
+  return newValue;
 }

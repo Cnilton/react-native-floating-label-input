@@ -78,6 +78,8 @@ export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   currencyDivider?: ',' | '.';
   /** Maxinum number of decimal places allowed for currency mask. */
   maxDecimalPlaces?: number;
+  /** Set currency on input value */
+  currency?: string;
   /** Changes the input from single line input to multiline input */
   multiline?: true | false;
   /** Maxinum number of characters allowed. Overriden by mask if present */
@@ -181,6 +183,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     darkTheme,
     countdownLabel,
     currencyDivider,
+    currency,
     maskType,
     onChangeText,
     customHidePasswordComponent,
@@ -596,15 +599,31 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     }
 
     if (maskType === 'currency') {
+      if (
+        currency !== undefined &&
+        !/^[0-9]+$/g.test(val.replace(/[.,]/g, '').replace(currency, '')) &&
+        val.replace(/[.,]/g, '').replace(currency, '') !== ''
+      ) {
+        return undefined;
+      } else if (
+        currency === undefined &&
+        !/^[0-9]+$/g.test(val.replace(/[.,]/g, '')) &&
+        val.replace(/[.,]/g, '') !== ''
+      ) {
+        return undefined;
+      }
+
       newValue = getValueWithCurrencyMask({
-        value,
-        newValue: val,
+        value: currency !== undefined ? value.replace(currency, '') : value,
+        newValue: currency !== undefined ? val.replace(currency, '') : val,
         currencyDivider,
         maxDecimalPlaces,
       });
     }
 
-    if (newValue !== undefined) return onChangeText(newValue);
+    if (newValue !== undefined) {
+      return onChangeText((currency !== undefined ? currency : '') + newValue);
+    }
   }
 
   function onLayout(event: LayoutChangeEvent) {

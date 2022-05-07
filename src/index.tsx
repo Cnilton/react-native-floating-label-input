@@ -218,14 +218,16 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
-  customLabelStyles = {
-    fontSizeFocused: 10,
-    fontSizeBlurred: 14,
-    colorFocused: '#49658c',
-    colorBlurred: '#49658c',
-    ...setGlobalStyles?.customLabelStyles,
-    ...customLabelStyles,
-  };
+  customLabelStyles = Styleshet.flatten([
+    {
+      fontSizeFocused: 10,
+      fontSizeBlurred: 14,
+      colorFocused: '#49658c',
+      colorBlurred: '#49658c',
+    },
+    setGlobalStyles?.customLabelStyles,
+    customLabelStyles,
+  ]);
 
   const [fontColorAnimated] = useState(new Animated.Value(0));
 
@@ -499,32 +501,34 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? customShowPasswordImage || makeVisibleWhite
     : customHidePasswordImage || makeInvisibleWhite;
 
-  const style: TextStyle = {
-    ...setGlobalStyles?.labelStyles,
-    ...labelStyles,
-    left: labelStyles?.left !== undefined ? labelStyles?.left : 5,
-    fontSize: staticLabel
-      ? customLabelStyles?.fontSizeFocused !== undefined
-        ? customLabelStyles.fontSizeFocused
-        : 10
-      : !isFocusedState
-      ? customLabelStyles.fontSizeBlurred
-      : customLabelStyles.fontSizeFocused,
-    // @ts-ignore
-    color: interpolateColors(fontColorAnimated, {
-      inputRange: [0, 1],
-      outputColorRange: [
-        // @ts-ignore
-        customLabelStyles.colorBlurred,
-        // @ts-ignore
-        customLabelStyles.colorFocused,
-      ],
-    }),
-    alignSelf: 'center',
-    position: 'absolute',
-    flex: 1,
-    zIndex: 999,
-  };
+  const style: TextStyle = Styleshet.flatten([
+    setGlobalStyles?.labelStyles,
+    labelStyles,
+    {
+      left: labelStyles?.left !== undefined ? labelStyles?.left : 5,
+      fontSize: staticLabel
+        ? customLabelStyles?.fontSizeFocused !== undefined
+          ? customLabelStyles.fontSizeFocused
+          : 10
+        : !isFocusedState
+        ? customLabelStyles.fontSizeBlurred
+        : customLabelStyles.fontSizeFocused,
+      // @ts-ignore
+      color: interpolateColors(fontColorAnimated, {
+        inputRange: [0, 1],
+        outputColorRange: [
+          // @ts-ignore
+          customLabelStyles.colorBlurred,
+          // @ts-ignore
+          customLabelStyles.colorFocused,
+        ],
+      }),
+      alignSelf: 'center',
+      position: 'absolute',
+      flex: 1,
+      zIndex: 999,
+    },
+  ]);
 
   let input: TextStyle =
     inputStyles !== undefined
@@ -533,13 +537,15 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.inputStyles
       : styles.input;
 
-  input = {
-    ...input,
-    flex: 1,
-    color:
-      input.color !== undefined ? input.color : customLabelStyles.colorFocused,
-    zIndex: style?.zIndex !== undefined ? style.zIndex - 2 : 0,
-  };
+  input = Stylesheet.flatten([
+    input,
+    {
+      flex: 1,
+      color:
+        input.color !== undefined ? input.color : customLabelStyles.colorFocused,
+      zIndex: style?.zIndex !== undefined ? style.zIndex - 2 : 0,
+    }
+  ]);
 
   containerStyles =
     containerStyles !== undefined
@@ -548,13 +554,15 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles?.containerStyles
       : styles.container;
 
-  containerStyles = {
-    ...containerStyles,
-    alignItems: 'center',
-    flexDirection: 'row',
-    flex: 1,
-    zIndex: style?.zIndex !== undefined ? style.zIndex - 6 : 0,
-  };
+  containerStyles = Stylesheet.flatten([
+    containerStyles,
+    {
+      alignItems: 'center',
+      flexDirection: 'row',
+      flex: 1,
+      zIndex: style?.zIndex !== undefined ? style.zIndex - 6 : 0,
+    }
+  ]);
 
   let toggleButton =
     showPasswordContainerStyles !== undefined
@@ -563,10 +571,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.showPasswordContainerStyles
       : styles.toggleButton;
 
-  toggleButton = {
-    ...toggleButton,
-    alignSelf: 'center',
-  };
+  toggleButton = Stylesheet.flatten([
+    toggleButton,
+    {
+      alignSelf: 'center',
+    },
+  ]);
 
   let img =
     showPasswordImageStyles !== undefined
@@ -575,17 +585,19 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.showPasswordImageStyles
       : styles.img;
 
-  img = {
-    height: 25,
-    width: 25,
-    ...img,
-  };
+  img = Stylesheet.flatten([
+    {
+      height: 25,
+      width: 25,
+    },
+    img,
+  ]);
 
-  const countdown = {
-    ...styles.countdown,
-    ...setGlobalStyles?.showCountdownStyles,
-    ...showCountdownStyles,
-  };
+  const countdown = Stylesheet.flatten([
+    styles.countdown,
+    setGlobalStyles?.showCountdownStyles,
+    showCountdownStyles,
+  ]);
 
   function onChangeTextCallback(val: string): void | undefined {
     if (onChangeText === undefined) return undefined;

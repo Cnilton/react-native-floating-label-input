@@ -19,6 +19,7 @@ import {
   ImageStyle,
   TouchableWithoutFeedback,
   LayoutChangeEvent,
+  Stylesheet,
 } from 'react-native';
 import Animated, {
   EasingNode,

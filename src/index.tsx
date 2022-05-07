@@ -19,7 +19,7 @@ import {
   ImageStyle,
   TouchableWithoutFeedback,
   LayoutChangeEvent,
-  Stylesheet,
+  StyleSheet,
 } from 'react-native';
 import Animated, {
   EasingNode,
@@ -219,7 +219,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
-  customLabelStyles = Stylesheet.flatten([
+  customLabelStyles = StyleSheet.flatten([
     {
       fontSizeFocused: 10,
       fontSizeBlurred: 14,
@@ -502,7 +502,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? customShowPasswordImage || makeVisibleWhite
     : customHidePasswordImage || makeInvisibleWhite;
 
-  const style: TextStyle = Stylesheet.flatten([
+  const style: TextStyle = StyleSheet.flatten([
     setGlobalStyles?.labelStyles,
     labelStyles,
     {
@@ -538,7 +538,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.inputStyles
       : styles.input;
 
-  input = Stylesheet.flatten([
+  input = StyleSheet.flatten([
     input,
     {
       flex: 1,
@@ -555,7 +555,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles?.containerStyles
       : styles.container;
 
-  containerStyles = Stylesheet.flatten([
+  containerStyles = StyleSheet.flatten([
     containerStyles,
     {
       alignItems: 'center',
@@ -572,7 +572,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.showPasswordContainerStyles
       : styles.toggleButton;
 
-  toggleButton = Stylesheet.flatten([
+  toggleButton = StyleSheet.flatten([
     toggleButton,
     {
       alignSelf: 'center',
@@ -586,7 +586,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? setGlobalStyles.showPasswordImageStyles
       : styles.img;
 
-  img = Stylesheet.flatten([
+  img = StyleSheet.flatten([
     {
       height: 25,
       width: 25,
@@ -594,7 +594,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     img,
   ]);
 
-  const countdown = Stylesheet.flatten([
+  const countdown = StyleSheet.flatten([
     styles.countdown,
     setGlobalStyles?.showCountdownStyles,
     showCountdownStyles,

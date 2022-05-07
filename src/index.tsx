@@ -218,7 +218,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
 
-  customLabelStyles = Styleshet.flatten([
+  customLabelStyles = Stylesheet.flatten([
     {
       fontSizeFocused: 10,
       fontSizeBlurred: 14,
@@ -501,7 +501,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     ? customShowPasswordImage || makeVisibleWhite
     : customHidePasswordImage || makeInvisibleWhite;
 
-  const style: TextStyle = Styleshet.flatten([
+  const style: TextStyle = Stylesheet.flatten([
     setGlobalStyles?.labelStyles,
     labelStyles,
     {

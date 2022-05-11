@@ -236,8 +236,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           ? customLabelStyles.fontSizeFocused
           : 10
         : customLabelStyles.fontSizeBlurred
-        ? customLabelStyles.fontSizeBlurred
-        : 14,
+          ? customLabelStyles.fontSizeBlurred
+          : 14,
     ),
   );
 
@@ -249,8 +249,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           : 15
         : customLabelStyles != undefined &&
           customLabelStyles.leftBlurred !== undefined
-        ? customLabelStyles.leftBlurred
-        : 0,
+          ? customLabelStyles.leftBlurred
+          : 0,
     ),
   );
 
@@ -261,8 +261,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           ? customLabelStyles.topFocused
           : 0
         : customLabelStyles.topBlurred
-        ? customLabelStyles.topBlurred
-        : 0,
+          ? customLabelStyles.topBlurred
+          : 0,
     ),
   );
 
@@ -336,11 +336,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
             : -halfTop +
-              (isFocusedState
+            (isFocusedState
+              ? customLabelStyles.fontSizeFocused
                 ? customLabelStyles.fontSizeFocused
-                  ? customLabelStyles.fontSizeFocused
-                  : 10
-                : customLabelStyles.fontSizeBlurred
+                : 10
+              : customLabelStyles.fontSizeBlurred
                 ? customLabelStyles.fontSizeBlurred
                 : 14),
           duration: animationDuration ? animationDuration : 300,
@@ -371,7 +371,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           toValue: customLabelStyles.leftFocused
             ? customLabelStyles.leftFocused
             : 0,
-        }),
+        }) as any, // Type issues owned by vendor. https://github.com/Cnilton/react-native-floating-label-input/pull/113
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeFocused
             ? customLabelStyles.fontSizeFocused
@@ -383,11 +383,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           toValue: customLabelStyles.topFocused
             ? customLabelStyles.topFocused
             : -halfTop +
-              (isFocusedState
+            (isFocusedState
+              ? customLabelStyles.fontSizeFocused
                 ? customLabelStyles.fontSizeFocused
-                  ? customLabelStyles.fontSizeFocused
-                  : 10
-                : customLabelStyles.fontSizeBlurred
+                : 10
+              : customLabelStyles.fontSizeBlurred
                 ? customLabelStyles.fontSizeBlurred
                 : 14),
           duration: animationDuration ? animationDuration : 300,
@@ -418,7 +418,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           toValue: customLabelStyles.leftBlurred
             ? customLabelStyles.leftBlurred
             : 0,
-        }),
+        }) as any // Type issues owned by vendor. https://github.com/Cnilton/react-native-floating-label-input/pull/113,
         timing(fontSizeAnimated, {
           toValue: customLabelStyles.fontSizeBlurred
             ? customLabelStyles.fontSizeBlurred
@@ -496,8 +496,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       ? customShowPasswordImage || makeVisibleBlack
       : customHidePasswordImage || makeInvisibleBlack
     : secureText
-    ? customShowPasswordImage || makeVisibleWhite
-    : customHidePasswordImage || makeInvisibleWhite;
+      ? customShowPasswordImage || makeVisibleWhite
+      : customHidePasswordImage || makeInvisibleWhite;
 
   const style: TextStyle = {
     ...setGlobalStyles?.labelStyles,
@@ -508,8 +508,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         ? customLabelStyles.fontSizeFocused
         : 10
       : !isFocusedState
-      ? customLabelStyles.fontSizeBlurred
-      : customLabelStyles.fontSizeFocused,
+        ? customLabelStyles.fontSizeBlurred
+        : customLabelStyles.fontSizeFocused,
     // @ts-ignore
     color: interpolateColors(fontColorAnimated, {
       inputRange: [0, 1],
@@ -530,8 +530,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     inputStyles !== undefined
       ? inputStyles
       : setGlobalStyles?.inputStyles !== undefined
-      ? setGlobalStyles.inputStyles
-      : styles.input;
+        ? setGlobalStyles.inputStyles
+        : styles.input;
 
   input = {
     ...input,
@@ -545,8 +545,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     containerStyles !== undefined
       ? containerStyles
       : setGlobalStyles?.containerStyles !== undefined
-      ? setGlobalStyles?.containerStyles
-      : styles.container;
+        ? setGlobalStyles?.containerStyles
+        : styles.container;
 
   containerStyles = {
     ...containerStyles,
@@ -560,8 +560,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     showPasswordContainerStyles !== undefined
       ? showPasswordContainerStyles
       : setGlobalStyles?.showPasswordContainerStyles !== undefined
-      ? setGlobalStyles.showPasswordContainerStyles
-      : styles.toggleButton;
+        ? setGlobalStyles.showPasswordContainerStyles
+        : styles.toggleButton;
 
   toggleButton = {
     ...toggleButton,
@@ -572,8 +572,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     showPasswordImageStyles !== undefined
       ? showPasswordImageStyles
       : setGlobalStyles?.showPasswordImageStyles !== undefined
-      ? setGlobalStyles.showPasswordImageStyles
-      : styles.img;
+        ? setGlobalStyles.showPasswordImageStyles
+        : styles.img;
 
   img = {
     height: 25,
@@ -644,8 +644,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 left: labelStyles?.left
                   ? labelStyles?.left
                   : customLabelStyles.leftFocused
-                  ? customLabelStyles.leftFocused
-                  : 20,
+                    ? customLabelStyles.leftFocused
+                    : 20,
                 top: -(style?.fontSize ? style?.fontSize : 10) / 2,
               },
             ]}
@@ -689,8 +689,8 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 mask !== undefined
                   ? mask.length
                   : maxLength !== undefined
-                  ? maxLength
-                  : undefined
+                    ? maxLength
+                    : undefined
               }
               placeholderTextColor={hintTextColor}
               placeholder={(staticLabel || isFocusedState) && hint ? hint : ''}

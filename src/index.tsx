@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import {
   View,
-  Animated as ReactAnimated,
   TextInput,
   Image,
   Text,
@@ -22,19 +21,20 @@ import {
   StyleSheet,
 } from 'react-native';
 import Animated, {
-  EasingNode,
-  timing,
-  interpolateColors,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+  useDerivedValue,
+  interpolateColor,
 } from 'react-native-reanimated';
 import { styles } from './styles';
 
-// @ts-ignore
 import makeVisibleWhite from './assets/make_visible_white.png';
-// @ts-ignore
+
 import makeInvisibleWhite from './assets/make_invisible_white.png';
-// @ts-ignore
+
 import makeVisibleBlack from './assets/make_visible_black.png';
-// @ts-ignore
+
 import makeInvisibleBlack from './assets/make_invisible_black.png';
 import { getValueWithCurrencyMask, getValueWithNonCurrencyMask } from './utils';
 
@@ -230,43 +230,37 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     customLabelStyles,
   ]);
 
-  const [fontColorAnimated] = useState(new Animated.Value(0));
+  const [fontColorAnimated, setFontColorAnimated] = useState(0);
 
-  const [fontSizeAnimated] = useState(
-    new Animated.Value(
-      isFocused
+  const [fontSizeAnimated, setFontSizeAnimated] = useState(
+    isFocused
+      ? customLabelStyles.fontSizeFocused
         ? customLabelStyles.fontSizeFocused
-          ? customLabelStyles.fontSizeFocused
-          : 10
-        : customLabelStyles.fontSizeBlurred
-        ? customLabelStyles.fontSizeBlurred
-        : 14,
-    ),
+        : 10
+      : customLabelStyles.fontSizeBlurred
+      ? customLabelStyles.fontSizeBlurred
+      : 14,
   );
 
-  const [leftAnimated] = useState(
-    new Animated.Value(
-      staticLabel
-        ? customLabelStyles?.leftFocused !== undefined
-          ? customLabelStyles.leftFocused
-          : 15
-        : customLabelStyles != undefined &&
-          customLabelStyles.leftBlurred !== undefined
-        ? customLabelStyles.leftBlurred
-        : 0,
-    ),
+  const [leftAnimated, setLeftAnimated] = useState(
+    staticLabel
+      ? customLabelStyles?.leftFocused !== undefined
+        ? customLabelStyles.leftFocused
+        : 15
+      : customLabelStyles != undefined &&
+        customLabelStyles.leftBlurred !== undefined
+      ? customLabelStyles.leftBlurred
+      : 6,
   );
 
-  const [topAnimated] = useState(
-    new Animated.Value(
-      staticLabel
-        ? customLabelStyles?.topFocused !== undefined
-          ? customLabelStyles.topFocused
-          : 0
-        : customLabelStyles.topBlurred
-        ? customLabelStyles.topBlurred
-        : 0,
-    ),
+  const [topAnimated, setTopAnimated] = useState(
+    staticLabel
+      ? customLabelStyles?.topFocused !== undefined
+        ? customLabelStyles.topFocused
+        : 0
+      : customLabelStyles.topBlurred
+      ? customLabelStyles.topBlurred
+      : 0,
   );
 
   useEffect(() => {
@@ -303,7 +297,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     } else {
       animateBlur();
     }
-  }, [isFocusedState, halfTop]);
+  }, [isFocusedState, halfTop, value]);
 
   useImperativeHandle(ref, () => ({
     focus() {
@@ -313,144 +307,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       inputRef.current.blur();
     },
   }));
-
-  useEffect(() => {
-    if (
-      !staticLabel &&
-      customLabelStyles.topFocused === undefined &&
-      isFocusedState
-    ) {
-      ReactAnimated.parallel([
-        timing(leftAnimated, {
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-          toValue: customLabelStyles.leftFocused
-            ? customLabelStyles.leftFocused
-            : 0,
-        }),
-        timing(fontSizeAnimated, {
-          toValue: customLabelStyles.fontSizeFocused
-            ? customLabelStyles.fontSizeFocused
-            : 10,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        timing(topAnimated, {
-          toValue: customLabelStyles.topFocused
-            ? customLabelStyles.topFocused
-            : -halfTop +
-              (isFocusedState
-                ? customLabelStyles.fontSizeFocused
-                  ? customLabelStyles.fontSizeFocused
-                  : 10
-                : customLabelStyles.fontSizeBlurred
-                ? customLabelStyles.fontSizeBlurred
-                : 14),
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        // @ts-ignore
-        timing(fontColorAnimated, {
-          toValue: 1,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-      ]).start();
-    } else if (staticLabel && isFocusedState) {
-      Animated.timing(fontColorAnimated, {
-        toValue: 1,
-        duration: animationDuration ? animationDuration : 300,
-        easing: EasingNode.linear,
-      }).start();
-    }
-  }, [halfTop]);
-
-  function animateFocus() {
-    if (!staticLabel) {
-      ReactAnimated.parallel([
-        timing(leftAnimated, {
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-          toValue: customLabelStyles.leftFocused
-            ? customLabelStyles.leftFocused
-            : 0,
-        }),
-        timing(fontSizeAnimated, {
-          toValue: customLabelStyles.fontSizeFocused
-            ? customLabelStyles.fontSizeFocused
-            : 10,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        timing(topAnimated, {
-          toValue: customLabelStyles.topFocused
-            ? customLabelStyles.topFocused
-            : -halfTop +
-              (isFocusedState
-                ? customLabelStyles.fontSizeFocused
-                  ? customLabelStyles.fontSizeFocused
-                  : 10
-                : customLabelStyles.fontSizeBlurred
-                ? customLabelStyles.fontSizeBlurred
-                : 14),
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        // @ts-ignore
-        timing(fontColorAnimated, {
-          toValue: 1,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-      ]).start();
-    } else {
-      Animated.timing(fontColorAnimated, {
-        toValue: 1,
-        duration: animationDuration ? animationDuration : 300,
-        easing: EasingNode.linear,
-      }).start();
-    }
-  }
-
-  function animateBlur() {
-    if (!staticLabel) {
-      ReactAnimated.parallel([
-        timing(leftAnimated, {
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-          toValue: customLabelStyles.leftBlurred
-            ? customLabelStyles.leftBlurred
-            : 0,
-        }),
-        timing(fontSizeAnimated, {
-          toValue: customLabelStyles.fontSizeBlurred
-            ? customLabelStyles.fontSizeBlurred
-            : 14,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        timing(topAnimated, {
-          toValue: customLabelStyles.topBlurred
-            ? customLabelStyles.topBlurred
-            : 0,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-        // @ts-ignore
-        timing(fontColorAnimated, {
-          toValue: 0,
-          duration: animationDuration ? animationDuration : 300,
-          easing: EasingNode.linear,
-        }),
-      ]).start();
-    } else {
-      Animated.timing(fontColorAnimated, {
-        toValue: 0,
-        duration: animationDuration ? animationDuration : 300,
-        easing: EasingNode.linear,
-      }).start();
-    }
-  }
 
   function handleFocus() {
     setIsFocused(true);
@@ -506,24 +362,6 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     setGlobalStyles?.labelStyles,
     labelStyles,
     {
-      left: labelStyles?.left !== undefined ? labelStyles?.left : 5,
-      fontSize: staticLabel
-        ? customLabelStyles?.fontSizeFocused !== undefined
-          ? customLabelStyles.fontSizeFocused
-          : 10
-        : !isFocusedState
-        ? customLabelStyles.fontSizeBlurred
-        : customLabelStyles.fontSizeFocused,
-      // @ts-ignore
-      color: interpolateColors(fontColorAnimated, {
-        inputRange: [0, 1],
-        outputColorRange: [
-          // @ts-ignore
-          customLabelStyles.colorBlurred,
-          // @ts-ignore
-          customLabelStyles.colorFocused,
-        ],
-      }),
       alignSelf: 'center',
       position: 'absolute',
       flex: 1,
@@ -543,9 +381,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     {
       flex: 1,
       color:
-        input.color !== undefined ? input.color : customLabelStyles.colorFocused,
+        input.color !== undefined
+          ? input.color
+          : customLabelStyles.colorFocused,
       zIndex: style?.zIndex !== undefined ? style.zIndex - 2 : 0,
-    }
+    },
   ]);
 
   containerStyles =
@@ -562,7 +402,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
       flexDirection: 'row',
       flex: 1,
       zIndex: style?.zIndex !== undefined ? style.zIndex - 6 : 0,
-    }
+    },
   ]);
 
   let toggleButton =
@@ -593,6 +433,49 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     },
     img,
   ]);
+
+  async function animateFocus() {
+    if (!staticLabel) {
+      setLeftAnimated(
+        customLabelStyles.leftFocused ? customLabelStyles.leftFocused : 0,
+      );
+      setFontSizeAnimated(
+        customLabelStyles.fontSizeFocused
+          ? customLabelStyles.fontSizeFocused
+          : 10,
+      );
+      setTopAnimated(
+        customLabelStyles.topFocused
+          ? customLabelStyles.topFocused
+          : -halfTop +
+              (customLabelStyles.fontSizeFocused
+                ? customLabelStyles.fontSizeFocused
+                : 10),
+      );
+      setFontColorAnimated(1);
+    } else {
+      setFontColorAnimated(1);
+    }
+  }
+
+  async function animateBlur() {
+    if (!staticLabel) {
+      setLeftAnimated(
+        customLabelStyles.leftBlurred ? customLabelStyles.leftBlurred : 6,
+      );
+      setFontSizeAnimated(
+        customLabelStyles.fontSizeBlurred
+          ? customLabelStyles.fontSizeBlurred
+          : 14,
+      );
+      setTopAnimated(
+        customLabelStyles.topBlurred ? customLabelStyles.topBlurred : 0,
+      );
+      setFontColorAnimated(0);
+    } else {
+      setFontColorAnimated(0);
+    }
+  }
 
   const countdown = StyleSheet.flatten([
     styles.countdown,
@@ -644,6 +527,55 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     setHalfTop(height / 2);
   }
 
+  const positionAnimations = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: withTiming(leftAnimated, {
+            duration: animationDuration || 300,
+            easing: Easing.in(Easing.ease),
+          }),
+        },
+        {
+          translateY: withTiming(topAnimated, {
+            duration: animationDuration || 300,
+            easing: Easing.in(Easing.ease),
+          }),
+        },
+      ],
+      fontSize: withTiming(fontSizeAnimated, {
+        duration: animationDuration || 300,
+        easing: Easing.in(Easing.ease),
+      }),
+    };
+  });
+
+  const progress = useDerivedValue(() => {
+    return withTiming(fontColorAnimated, {
+      duration: animationDuration || 300,
+      easing: Easing.in(Easing.ease),
+    });
+  });
+
+  const colorAnimation = useAnimatedStyle(() => {
+    const color = interpolateColor(
+      progress.value,
+      [0, 1],
+      [
+        customLabelStyles.colorBlurred !== undefined
+          ? customLabelStyles.colorBlurred
+          : '#000',
+        customLabelStyles.colorFocused !== undefined
+          ? customLabelStyles.colorFocused
+          : '#000',
+      ],
+    );
+
+    return {
+      color,
+    };
+  });
+
   return (
     <TouchableWithoutFeedback onPress={setFocus} onLayout={onLayout}>
       <View style={{ flexDirection: 'row' }}>
@@ -653,6 +585,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             onPress={setFocus}
             style={[
               style,
+              colorAnimation,
               {
                 left: labelStyles?.left
                   ? labelStyles?.left
@@ -673,17 +606,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
               <AnimatedText
                 {...labelProps}
                 onPress={setFocus}
-                style={[
-                  style,
-                  // @ts-ignore
-                  {
-                    fontSize: fontSizeAnimated,
-                    transform: [
-                      { translateX: leftAnimated },
-                      { translateY: topAnimated },
-                    ],
-                  },
-                ]}
+                style={[style, positionAnimations, colorAnimation]}
               >
                 {label}
               </AnimatedText>

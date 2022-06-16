@@ -1,7 +1,7 @@
 {
   "name": "react-native-floating-label-input",
   "description": "A simple and customizable React Native TextInput with it's placeholder always shown.",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "Caio Nilton <cnilton>",
   "main": "index.tsx",
   "private": false,

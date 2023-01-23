@@ -4,6 +4,7 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from 'react';
 import {
   View,
@@ -232,36 +233,38 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   const [fontColorAnimated, setFontColorAnimated] = useState(0);
 
+  /**
+   * Set the initial values of the label;
+   * If there is already a value setted, it means that the label in case it is not a static one, should
+   * have the size and position as they were focused
+   */
   const [fontSizeAnimated, setFontSizeAnimated] = useState(
     isFocused
-      ? customLabelStyles.fontSizeFocused
-        ? customLabelStyles.fontSizeFocused
-        : 10
-      : customLabelStyles.fontSizeBlurred
-      ? customLabelStyles.fontSizeBlurred
-      : 14,
+      ? (customLabelStyles?.fontSizeFocused || 10)
+      : (value ? (customLabelStyles?.fontSizeFocused || 14) : (customLabelStyles?.fontSizeBlurred || 14))
   );
 
   const [leftAnimated, setLeftAnimated] = useState(
     staticLabel
-      ? customLabelStyles?.leftFocused !== undefined
-        ? customLabelStyles.leftFocused
-        : 15
-      : customLabelStyles != undefined &&
-        customLabelStyles.leftBlurred !== undefined
-      ? customLabelStyles.leftBlurred
-      : 6,
+      ? (customLabelStyles?.leftFocused || 15)
+      : (value ? (customLabelStyles?.leftFocused || 0) : (customLabelStyles?.leftBlurred || 6))
   );
 
   const [topAnimated, setTopAnimated] = useState(
     staticLabel
-      ? customLabelStyles?.topFocused !== undefined
-        ? customLabelStyles.topFocused
-        : 0
-      : customLabelStyles.topBlurred
-      ? customLabelStyles.topBlurred
-      : 0,
+      ? (customLabelStyles?.topFocused || 0)
+      : (value ? (customLabelStyles?.topFocused || (-halfTop + (customLabelStyles?.fontSizeFocused || 10))) : (customLabelStyles?.topBlurred || 0))
   );
+
+  // ==== End initial values =====
+
+  useEffect(() => {
+    // if it's not a static label, as soon as the "halfTop" state has been setted to the onLayout event, get the correct ..
+    // .. top position of the label based if it has already a value setted or not
+    if (halfTop > 0 && !staticLabel) {
+      setTopAnimated((value ? (customLabelStyles?.topFocused || (-halfTop + (customLabelStyles?.fontSizeFocused || 10))) : (customLabelStyles?.topBlurred || 0)))
+    }
+  }, [halfTop])
 
   useEffect(() => {
     if (isFocused === undefined) {
@@ -291,7 +294,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 
   useEffect(() => {
     if (isFocusedState || value !== '') {
-      if (halfTop !== 0) {
+      if (halfTop !== 0 && !value) {
         animateFocus();
       }
     } else {
@@ -527,6 +530,21 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     setHalfTop(height / 2);
   }
 
+  // Get the default non-animated position of the label and store it in a memo
+  const defaultPosition = useMemo(() => (
+    {
+      transform: [
+        {
+          translateX: leftAnimated
+        },
+        {
+          translateY: topAnimated
+        }
+      ],
+    fontSize: fontSizeAnimated
+  }
+  ), [leftAnimated, topAnimated, fontSizeAnimated]);
+
   const positionAnimations = useAnimatedStyle(() => {
     return {
       transform: [
@@ -602,11 +620,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
         <View style={containerStyles}>
           {leftComponent && leftComponent}
           <View style={{ flex: 1, flexDirection: 'row' }}>
-            {!staticLabel && (
+            {!staticLabel && halfTop > 0 && (
               <AnimatedText
                 {...labelProps}
                 onPress={setFocus}
-                style={[style, positionAnimations, colorAnimation]}
+                style={[style, (!value || value === '') ? positionAnimations : defaultPosition, colorAnimation]}
               >
                 {label}
               </AnimatedText>
@@ -662,3 +680,4 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
 };
 export { setGlobalStyles };
 export default forwardRef(FloatingLabelInput);
+

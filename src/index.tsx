@@ -605,6 +605,7 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
             {!staticLabel && (
               <AnimatedText
                 {...labelProps}
+                suppressHighlighting
                 onPress={setFocus}
                 style={[style, positionAnimations, colorAnimation]}
               >

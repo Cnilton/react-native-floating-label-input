@@ -50,7 +50,7 @@ export interface Props extends Omit<TextInputProps, 'secureTextEntry'> {
   /** Set the color to the hint */
   hintTextColor?: string;
   /** Value for the label, same as placeholder */
-  label: string;
+  label: React.ReactNode;
   /** Style to the label */
   labelStyles?: TextStyle;
   /** Set this to true if is password to have a show/hide input and secureTextEntry automatically */

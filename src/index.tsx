@@ -26,6 +26,7 @@ import Animated, {
   Easing,
   useDerivedValue,
   interpolateColor,
+  useSharedValue,
 } from 'react-native-reanimated';
 import { styles } from './styles';
 
@@ -218,6 +219,11 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   const [isFocusedState, setIsFocused] = useState(false);
   const [secureText, setSecureText] = useState(true);
   const inputRef = useRef<any>(null);
+  const isFirstRender = useRef(true);
+
+  const sharedValueOpacity = useSharedValue(
+    isFirstRender.current && value ? 0 : 1,
+  );
 
   customLabelStyles = StyleSheet.flatten([
     {
@@ -527,6 +533,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
     setHalfTop(height / 2);
   }
 
+  useEffect(() => {
+    sharedValueOpacity.value = 1;
+  }, []);
+
   const positionAnimations = useAnimatedStyle(() => {
     return {
       transform: [
@@ -543,6 +553,10 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
           }),
         },
       ],
+      opacity: withTiming(sharedValueOpacity.value, {
+        duration: animationDuration || 600,
+        easing: Easing.in(Easing.ease),
+      }),
       fontSize: withTiming(fontSizeAnimated, {
         duration: animationDuration || 300,
         easing: Easing.in(Easing.ease),
@@ -577,8 +591,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
   });
 
   return (
-    <TouchableWithoutFeedback style={{flex:1}} onPress={setFocus} onLayout={onLayout}>
-      <View style={{ flexDirection: 'row', flexGrow:1 }}>
+    <TouchableWithoutFeedback
+      style={{ flex: 1 }}
+      onPress={setFocus}
+      onLayout={onLayout}
+    >
+      <View style={{ flexDirection: 'row', flexGrow: 1 }}>
         {staticLabel && (
           <AnimatedText
             {...labelProps}
@@ -607,7 +625,12 @@ const FloatingLabelInput: React.ForwardRefRenderFunction<InputRef, Props> = (
                 {...labelProps}
                 suppressHighlighting
                 onPress={setFocus}
-                style={[style, positionAnimations, colorAnimation]}
+                style={[
+                  style,
+                  { opacity: 0 },
+                  positionAnimations,
+                  colorAnimation,
+                ]}
               >
                 {label}
               </AnimatedText>
